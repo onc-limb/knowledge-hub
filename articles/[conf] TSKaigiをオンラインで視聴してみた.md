@@ -3,7 +3,7 @@ title: "TSKaigiをオンラインで視聴してみた"
 emoji: ""
 type: "tech"
 topics: ["conference", "typescript"]
-published: true
+published: false
 ---
 
 ## はじめに

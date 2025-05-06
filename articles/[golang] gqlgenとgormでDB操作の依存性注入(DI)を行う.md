@@ -1,3 +1,11 @@
+---
+title: "gqlgenとgormでDB操作の依存性注入(DI)を行う"
+emoji: ""
+type: "tech"
+topics: ["golang", "graphql"]
+published: true
+---
+
 こんにちは！onc-limb です。
 仕事では TypeScript のフレームワークである NestJS を使用しています。
 
@@ -13,9 +21,9 @@ NestJS では依存性注入を@Module デコレーターを使ってモジュ�
 
 今回やりたいこと
 
--   DB 操作は repository からのみ行う。
--   domain に repository のインターフェースのみ定義して、usecase は domain を参照する。
--   repository は domain に定義したインターフェースを継承して実装する。
+- DB 操作は repository からのみ行う。
+- domain に repository のインターフェースのみ定義して、usecase は domain を参照する。
+- repository は domain に定義したインターフェースを継承して実装する。
 
 ## 結論
 
