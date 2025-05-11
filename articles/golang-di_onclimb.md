@@ -6,7 +6,8 @@ topics: ["golang", "graphql"]
 published: true
 ---
 
-こんにちは！onc-limb です。
+## はじめに
+こんにちは、onclimb です。
 仕事では TypeScript のフレームワークである NestJS を使用しています。
 
 NestJS では依存性注入を@Module デコレーターを使ってモジュールごとに行いますが、go 言語ではどのように実装すれば良いかわからなかったので試してみました。
@@ -86,7 +87,8 @@ package main
 
 func main() {
 	// 無関係のコードは割愛
-	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{}) // dsnは事前に定義
+	// dsnは事前に定義
+	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{}) 
 	repo := infra.NewRepository(db)
 
 	// graphqlのresolverにrepository設定

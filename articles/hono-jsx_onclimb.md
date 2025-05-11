@@ -1,9 +1,10 @@
 ---
-title: "hono-jsxにReactを導入しようとした話"
+title: hono-jsxにReactを導入しようとした話
 emoji: ""
-type: "tech"
-topics: ["hono"]
-published: true
+type: tech
+topics:
+  - hono
+published: false
 ---
 
 ## はじめに
