@@ -4,6 +4,7 @@ import * as path from "path";
 interface CategoryMetadata {
   category: string;
   point: number;
+  names?: string[];
   subCategories?: CategoryMetadata[];
   subSubCategories?: CategoryMetadata[];
 }
@@ -28,11 +29,17 @@ function scanDirectory(dirPath: string, depth: number = 0): CategoryMetadata[] {
     // For each subdirectory, create a category
     for (const subdir of subdirs) {
       const subdirPath = path.join(dirPath, subdir.name);
+      const directFiles = getDirectFilenames(subdirPath);
 
       const categoryData: CategoryMetadata = {
         category: subdir.name,
         point: 0, // Will be calculated later
       };
+
+      // Add filenames if there are any direct files
+      if (directFiles.length > 0) {
+        categoryData.names = directFiles;
+      }
 
       if (depth === 0) {
         // Level 1: dirs - scan for subdirectories (subdirs)
@@ -62,6 +69,26 @@ function scanDirectory(dirPath: string, depth: number = 0): CategoryMetadata[] {
   }
 
   return categories;
+}
+
+function getDirectFilenames(dirPath: string): string[] {
+  const filenames: string[] = [];
+
+  try {
+    const items = fs.readdirSync(dirPath, { withFileTypes: true });
+
+    for (const item of items) {
+      if (item.name.startsWith(".")) continue;
+
+      if (item.isFile()) {
+        filenames.push(item.name);
+      }
+    }
+  } catch (error) {
+    console.error(`Error reading filenames in ${dirPath}:`, error);
+  }
+
+  return filenames;
 }
 
 function countFilesRecursively(dirPath: string): number {
@@ -138,23 +165,32 @@ function generateMetadata(): void {
   // Display hierarchy structure
   console.log("\nHierarchy structure:");
   categories.forEach((category) => {
-    console.log(`├── ${category.category} (${category.point} files)`);
+    const filesInfo = category.names ? ` [${category.names.join(", ")}]` : "";
+    console.log(
+      `├── ${category.category} (${category.point} files)${filesInfo}`
+    );
     if (category.subCategories) {
       category.subCategories.forEach((subCat, index) => {
         const isLast = index === category.subCategories!.length - 1;
+        const subFilesInfo = subCat.names
+          ? ` [${subCat.names.join(", ")}]`
+          : "";
         console.log(
           `│   ${isLast ? "└──" : "├──"} ${subCat.category} (${
             subCat.point
-          } files)`
+          } files)${subFilesInfo}`
         );
         if (subCat.subSubCategories) {
           subCat.subSubCategories.forEach((subSubCat, subIndex) => {
             const isSubLast = subIndex === subCat.subSubCategories!.length - 1;
             const prefix = isLast ? "    " : "│   ";
+            const subSubFilesInfo = subSubCat.names
+              ? ` [${subSubCat.names.join(", ")}]`
+              : "";
             console.log(
               `${prefix}    ${isSubLast ? "└──" : "├──"} ${
                 subSubCat.category
-              } (${subSubCat.point} files)`
+              } (${subSubCat.point} files)${subSubFilesInfo}`
             );
           });
         }

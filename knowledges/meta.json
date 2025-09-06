@@ -1,10 +1,70 @@
 {
   "categories": [
     {
-      "category": "root",
-      "point": 4
+      "category": "backend",
+      "point": 6,
+      "subCategories": [
+        {
+          "category": "aws",
+          "point": 5,
+          "names": [
+            "AWS.md",
+            "cloudformation.md",
+            "lambda.md"
+          ],
+          "subSubCategories": [
+            {
+              "category": "ec2",
+              "point": 1,
+              "names": [
+                "instances.md"
+              ]
+            },
+            {
+              "category": "s3",
+              "point": 1,
+              "names": [
+                "buckets.md"
+              ]
+            }
+          ]
+        },
+        {
+          "category": "go",
+          "point": 1,
+          "names": [
+            "go.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "frontend",
+      "point": 1,
+      "subCategories": [
+        {
+          "category": "express",
+          "point": 1,
+          "names": [
+            "express.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "methodology",
+      "point": 1,
+      "subCategories": [
+        {
+          "category": "scrum",
+          "point": 1,
+          "names": [
+            "scrum.md"
+          ]
+        }
+      ]
     }
   ],
-  "totalFiles": 4,
-  "lastUpdated": "2025-09-03T10:36:29.019Z"
+  "totalFiles": 8,
+  "lastUpdated": "2025-09-06T01:53:14.545Z"
 }
