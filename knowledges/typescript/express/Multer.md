@@ -1,0 +1,1 @@
+Node.jsのファイルチェックmiddlewareとして使用される[Multer](https://github.com/expressjs/multer)は拡張子やMIMEを確認することができるが、MIMEはブラウザから送られてきたメタ情報を元に判定しているらしい。ブラウザはMIMEを拡張子から算出しているから、ユーザーがデータと合わない拡張子に変更しているとMulterでは検知できない。
