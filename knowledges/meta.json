@@ -1,54 +1,58 @@
 {
   "categories": [
     {
-      "category": "backend",
-      "point": 6,
+      "category": "ai",
+      "point": 7,
       "subCategories": [
         {
-          "category": "aws",
-          "point": 5,
+          "category": "機械学習",
+          "point": 7,
           "names": [
-            "AWS.md",
-            "cloudformation.md",
-            "lambda.md"
-          ],
-          "subSubCategories": [
-            {
-              "category": "ec2",
-              "point": 1,
-              "names": [
-                "instances.md"
-              ]
-            },
-            {
-              "category": "s3",
-              "point": 1,
-              "names": [
-                "buckets.md"
-              ]
-            }
-          ]
-        },
-        {
-          "category": "go",
-          "point": 1,
-          "names": [
-            "go.md"
+            "LightningCLIとは.md",
+            "Lightningのモジュール.md",
+            "MLOpsの流れ.md",
+            "NVTablerとは.md",
+            "NVTablerのworkflow.md",
+            "再学習.md",
+            "機械学習におけるデータセット.md"
           ]
         }
       ]
     },
     {
-      "category": "frontend",
+      "category": "architecture",
       "point": 1,
+      "names": [
+        "アーキテクチャ特性.md"
+      ]
+    },
+    {
+      "category": "aws",
+      "point": 4,
       "subCategories": [
         {
-          "category": "express",
+          "category": "AmazonQ",
           "point": 1,
           "names": [
-            "express.md"
+            "Amazon Q DeveloperのSlack通知.md"
+          ]
+        },
+        {
+          "category": "sagemaker",
+          "point": 3,
+          "names": [
+            "ProcessingJobとTrainingJobの違い.md",
+            "SageMaker DataWrangler.md",
+            "SageMakerローカルモード.md"
           ]
         }
+      ]
+    },
+    {
+      "category": "css",
+      "point": 1,
+      "names": [
+        "tailwindのimport.md"
       ]
     },
     {
@@ -59,12 +63,33 @@
           "category": "scrum",
           "point": 1,
           "names": [
-            "scrum.md"
+            "プロダクトバックログ.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "python",
+      "point": 1,
+      "names": [
+        "Logging.md"
+      ]
+    },
+    {
+      "category": "typescript",
+      "point": 2,
+      "subCategories": [
+        {
+          "category": "express",
+          "point": 2,
+          "names": [
+            "Multer.md",
+            "express概要.md"
           ]
         }
       ]
     }
   ],
-  "totalFiles": 8,
-  "lastUpdated": "2025-09-06T01:53:14.545Z"
+  "totalFiles": 19,
+  "lastUpdated": "2025-09-08T13:34:48.381Z"
 }
