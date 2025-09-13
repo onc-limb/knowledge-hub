@@ -5,42 +5,41 @@
 ### Basic Usage
 
 ```bash
-node scripts/generate-metadata.ts [options] [directory]
+npx tsx scripts/generate-metadata.ts
 ```
 
 ### Arguments
 
-- `directory` (optional): Path to knowledges directory (default: "./knowledges")
+- なし（固定で knowledges ディレクトリをスキャン）
 
 ### Options
 
-- `--help`, `-h`: Show help message
-- `--version`, `-v`: Show version information
-- `--format <format>`: Output format (json|pretty) (default: "pretty")
-- `--output <file>`: Output file path (default: "knowledges/meta.json")
-- `--dry-run`: Show what would be generated without writing files
-- `--verbose`: Enable verbose logging
+- 現在の実装ではオプション引数なし（シンプルな単一機能）
+- 将来追加予定: `--help`, `--version`, `--output` など
 
 ## Input Contract
 
 ### Directory Structure Requirements
 
 ```
-<target-directory>/
-├── category1/
+knowledges/
+├── category1/              # レベル1: カテゴリ
 │   ├── file1.md
 │   ├── file2.md
-│   └── subcategory1/
-│       └── file3.md
+│   └── subcategory1/       # レベル2: サブカテゴリ
+│       ├── file3.md
+│       └── subsubcategory1/ # レベル3: サブサブカテゴリ
+│           └── file4.md
 └── category2/
-    └── file4.md
+    └── file5.md
 ```
 
 ### File Requirements
 
-- **File Extensions**: Only `.md` files are processed
+- **File Extensions**: 全ファイル対象（.md ファイル以外も含む）
 - **File Names**: UTF-8 encoded, OS filesystem-compatible names
 - **Directory Names**: Valid filesystem directory names, UTF-8 support
+- **Depth Limit**: 3 階層まで（categories → subCategories → subSubCategories）
 
 ### Access Requirements
 
@@ -62,9 +61,17 @@ node scripts/generate-metadata.ts [options] [directory]
       "items": {
         "$ref": "#/definitions/Category"
       }
+    },
+    "totalFiles": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time"
     }
   },
-  "required": ["categories"],
+  "required": ["categories", "totalFiles", "lastUpdated"],
   "definitions": {
     "Category": {
       "type": "object",
@@ -80,14 +87,59 @@ node scripts/generate-metadata.ts [options] [directory]
         "names": {
           "type": "array",
           "items": {
-            "type": "string",
-            "pattern": "\\.md$"
+            "type": "string"
           }
         },
         "subCategories": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Category"
+            "$ref": "#/definitions/SubCategory"
+          }
+        }
+      },
+      "required": ["category", "point"]
+    },
+    "SubCategory": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "point": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subSubCategories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SubSubCategory"
+          }
+        }
+      },
+      "required": ["category", "point"]
+    },
+    "SubSubCategory": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "point": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       },
@@ -100,8 +152,8 @@ node scripts/generate-metadata.ts [options] [directory]
 ### Success Response
 
 - **Exit Code**: 0
-- **Stdout**: Progress messages (if --verbose)
-- **File Output**: Valid JSON written to specified output file
+- **Stdout**: 実行完了メッセージ
+- **File Output**: Valid JSON written to knowledges/meta.json
 
 ### Error Response
 
@@ -114,21 +166,22 @@ node scripts/generate-metadata.ts [options] [directory]
 ### Successful Execution
 
 ```bash
-$ node scripts/generate-metadata.ts --verbose
-Scanning directory: knowledges
-Found category: ai (2 files, 1 subcategory)
-Found category: aws (0 files, 2 subcategories)
-Found category: go (1 file, 0 subcategories)
-Generated metadata for 3 categories
+$ npx tsx scripts/generate-metadata.ts
+Metadata generated successfully.
 Written to: knowledges/meta.json
 ```
 
 ### Error Cases
 
 ```bash
-# Directory not found
-$ node scripts/generate-metadata.ts ./nonexistent
-Error: Directory not found: ./nonexistent
+# TypeScript実行エラー
+$ npx tsx scripts/generate-metadata.ts
+Error: Cannot find module 'tsx'
+# 解決: npm install -g tsx
+
+# knowledges ディレクトリが見つからない
+$ npx tsx scripts/generate-metadata.ts
+Error: knowledges directory not found
 
 # Permission denied
 $ node scripts/generate-metadata.ts /root/protected

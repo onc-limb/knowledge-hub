@@ -31,19 +31,19 @@
 
 ## Summary
 
-knowledges 配下の Markdown ファイルを再帰的にスキャンし、カテゴリ・サブカテゴリ・ファイル統計を含む階層的なメタデータを meta.json に生成する機能。TypeScript による Node.js CLI ツールとして実装し、既存の scripts/generate-metadata.ts を拡張して深い階層構造に対応する。
+knowledges 配下の Markdown ファイルを再帰的にスキャンし、カテゴリ・サブカテゴリ・サブサブカテゴリの 3 階層メタデータを meta.json に生成する機能。TypeScript による Node.js CLI ツール（scripts/generate-metadata.ts）として**既に実装済み**であり、本仕様書は既存実装に合わせて設計文書を整備するもの。
 
 ## Technical Context
 
-**Language/Version**: TypeScript/Node.js (既存プロジェクトに合わせて)  
+**Language/Version**: TypeScript/Node.js (既存実装)  
 **Primary Dependencies**: Node.js fs/path modules, TypeScript  
 **Storage**: /knowledges/meta.json (JSON ファイル出力)  
-**Testing**: Node.js built-in test runner または Jest  
+**Testing**: 既存実装では未実装、今後追加予定  
 **Target Platform**: Node.js 環境 (開発者のローカル環境)
-**Project Type**: single (既存の knowledge-hub プロジェクトに統合)  
-**Performance Goals**: 1000 ファイル未満のスキャンを 1 秒以内  
-**Constraints**: 既存の meta.json 形式との互換性維持が必須  
-**Scale/Scope**: knowledges 配下の全 Markdown ファイル (現在約 20 ファイル、将来的に数百ファイル程度)
+**Project Type**: single (既存の knowledge-hub プロジェクトに統合済み)  
+**Performance Goals**: 現行実装で十分なパフォーマンス  
+**Constraints**: 既存の meta.json 形式（3 階層、totalFiles、lastUpdated）の維持  
+**Scale/Scope**: knowledges 配下の全ファイル (現在約 20 ファイル、将来的に数百ファイル程度)
 
 ## Constitution Check
 
@@ -132,15 +132,21 @@ specs/001-knowledges-markdown/
 ### Source Code (repository root)
 
 ```
-# Option 1: Single project (DEFAULT)
+# 現状: 既存実装済み
+scripts/
+└── generate-metadata.ts    # 既存CLIスクリプト（3階層対応済み）
+
+knowledges/
+└── meta.json               # 既存出力ファイル
+
+# 将来の改良案
 src/
-├── metadata-generator/  # 新ライブラリ
+├── metadata-generator/     # ライブラリ化時の候補
 │   ├── index.ts
 │   ├── scanner.ts
 │   └── types.ts
-├── cli/
-│   └── generate-metadata.ts  # 既存スクリプト拡張
-└── lib/
+└── cli/
+    └── generate-metadata.ts
 
 tests/
 ├── contract/
@@ -150,7 +156,7 @@ tests/
     └── scanner.test.ts
 ```
 
-**Structure Decision**: Option 1 (既存の knowledge-hub プロジェクトに統合)
+**Structure Decision**: 既存実装（scripts/generate-metadata.ts）として完成済み
 ├── models/
 ├── services/
 ├── cli/
@@ -190,43 +196,45 @@ ios/ or android/
 **Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
 
 ## Phase 0: Outline & Research
-既存のプロジェクト構造とscripts/generate-metadata.tsを分析済み。技術的な不明点はなく、以下の技術選択が明確:
+既存のscripts/generate-metadata.tsの実装を分析済み。以下の技術仕様が確定済み:
 
-1. **TypeScript/Node.js**: 既存プロジェクトとの整合性
-2. **ファイルシステムAPI**: Node.js標準のfs/pathモジュール
-3. **既存形式**: categories配列構造の維持
-4. **再帰処理**: ディレクトリ階層の深度制限なし
+1. **TypeScript/Node.js**: 既存実装として動作中
+2. **ファイルシステムAPI**: Node.js標準のfs/pathモジュール使用
+3. **3階層構造**: categories → subCategories → subSubCategories
+4. **全ファイル対象**: MarkdownファイルかWhfichくfとかによらず全ファイルをスキャン
+5. **統計情報**: totalFiles、lastUpdated の自動生成
+6. **再帰処理**: 3階層までの固定深度処理
 
 **Output**: research.md (技術調査結果)
 
 ## Phase 1: Design & Contracts
 *Prerequisites: research.md complete*
 
-1. **Extract entities from feature spec** → `data-model.md`:
-   - Category, SubCategory エンティティ
-   - ファイル統計とメタデータ構造
-   - 階層関係とポイント計算ルール
+1. **Extract entities from existing implementation** → `data-model.md`:
+   - CategoryMetadata (3階層: category, subCategories, subSubCategories)
+   - KnowledgeMetadata (totalFiles, lastUpdated)
+   - FileSystemScanResult (ファイル統計とメタデータ構造)
 
-2. **Generate API contracts** from functional requirements:
-   - CLIインターフェース仕様
-   - 入力: knowledgesディレクトリパス
-   - 出力: meta.json更新
+2. **Document existing API contracts**:
+   - CLIインターフェース: `npm run scripts/generate-metadata.ts`
+   - 入力: knowledgesディレクトリ（固定パス）
+   - 出力: meta.json更新（3階層構造）
 
-3. **Generate contract tests** from contracts:
+3. **Plan contract tests** for existing implementation:
    - CLI実行テスト
-   - JSON出力形式検証
+   - JSON出力形式検証（3階層、totalFiles、lastUpdated）
    - エラーハンドリングテスト
 
-4. **Extract test scenarios** from user stories:
-   - ファイル追加/削除シナリオ
-   - 深い階層構造テスト
-   - 既存形式互換性テスト
+4. **Extract test scenarios** from existing behavior:
+   - 3階層スキャンシナリオ
+   - 全ファイル対象処理
+   - 既存形式維持テスト
 
-5. **Update agent file incrementally**:
+5. **Update agent file**:
    - GitHub Copilot instructions更新
-   - 新技術スタック情報追加
+   - 既存実装の技術スタック情報を反映
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, .github/copilot-instructions.md
+**Output**: data-model.md, /contracts/*, quickstart.md, .github/copilot-instructions.md
 
 2. **Generate API contracts** from functional requirements:
    - For each user action → endpoint
@@ -256,28 +264,27 @@ ios/ or android/
 *This section describes what the /tasks command will do - DO NOT execute during /plan*
 
 **Task Generation Strategy**:
-- Load `/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P]
-- Each user story → integration test task
-- Implementation tasks to make tests pass
+- 既存実装用テスト追加タスクを生成
+- 既存contracts → contract test task [P]
+- 既存entities → model documentation task [P]
+- 既存behavior → integration test task
+- テスト不足部分の実装タスク
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation
-- Dependency order: Types → Scanner → CLI → Integration
-- Mark [P] for parallel execution (independent files)
+- ドキュメント整備: 既存実装の仕様書化
+- テスト追加: Contract → Integration → Unit の順序
+- Mark [P] for parallel execution (独立したファイル)
 
-**Estimated Output**: 15-20 numbered, ordered tasks in tasks.md
+**Estimated Output**: 10-15 numbered, ordered tasks in tasks.md (実装済みのため、テスト・ドキュメント中心)
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
 *These phases are beyond the scope of the /plan command*
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)
-**Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
+**Phase 3**: Task execution (/tasks command creates tasks.md for test & documentation)
+**Phase 4**: Test implementation (既存実装用のテストスイート追加)
+**Phase 5**: Documentation validation (quickstart.md 検証、契約仕様書確認)
 
 ## Complexity Tracking
 *No constitution violations detected - this section intentionally left empty*

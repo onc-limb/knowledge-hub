@@ -1,27 +1,67 @@
 # Library API Contract
 
-## Metadata Generator Library
+## 既存実装の現状
 
-### Main Export
+現在の実装（`scripts/generate-metadata.ts`）は単一ファイルのスクリプトであり、ライブラリ化されていません。
+
+### 実装されている主要機能
+
+#### 1. ディレクトリスキャン機能
 
 ```typescript
-export interface MetadataGenerator {
-  scan(options: ScanOptions): Promise<MetadataCollection>;
-  scanSync(options: ScanOptions): MetadataCollection;
+// scripts/generate-metadata.ts内で実装済み
+function scanDirectory(dirPath: string): DirectoryData {
+  // knowledgesディレクトリを3階層まで再帰スキャン
+  // 全ファイル（.md以外も含む）をカウント
+  // カテゴリ構造を解析
 }
 ```
 
-### Core Functions
+#### 2. メタデータ生成機能
+
+```typescript
+// scripts/generate-metadata.ts内で実装済み
+function generateCategoryMetadata(
+  directories: DirectoryData[]
+): CategoryMetadata[] {
+  // 3階層構造のメタデータ生成
+  // point計算（ファイル数）
+  // names配列生成
+}
+```
+
+#### 3. JSON 出力機能
+
+```typescript
+// scripts/generate-metadata.ts内で実装済み
+function writeMetadataToFile(metadata: KnowledgeMetadata): void {
+  // knowledges/meta.jsonに書き込み
+  // totalFiles, lastUpdated自動追加
+}
+```
+
+## 将来のライブラリ化案
+
+### Main Export（将来実装時）
+
+```typescript
+export interface MetadataGenerator {
+  scan(options: ScanOptions): Promise<KnowledgeMetadata>;
+  scanSync(options: ScanOptions): KnowledgeMetadata;
+}
+```
+
+### Core Functions（将来実装時）
 
 #### `scanDirectorySync(path: string): ScanResult`
 
-**Purpose**: Synchronously scan a directory and return file/subdirectory information
+**Purpose**: 固定 3 階層でディレクトリスキャン
 
 **Input Contract**:
 
 ```typescript
 interface ScanInput {
-  path: string; // Absolute or relative path to directory
+  path: string; // knowledgesディレクトリのパス（通常は固定）
 }
 ```
 
@@ -30,23 +70,12 @@ interface ScanInput {
 ```typescript
 interface ScanResult {
   path: string; // Normalized absolute path
-  files: string[]; // Array of .md filenames (not full paths)
+  files: string[]; // Array of all filenames (not just .md)
   subdirectories: string[]; // Array of subdirectory names
-  scanResults: ScanResult[]; // Recursive results for subdirectories
+  totalFiles: number; // 総ファイル数
+  lastScanned: string; // スキャン日時
 }
 ```
-
-**Error Contract**:
-
-- Throws `DirectoryNotFoundError` if path doesn't exist
-- Throws `PermissionError` if read access denied
-- Throws `InvalidPathError` if path is not a directory
-
-#### `generateMetadata(scanResult: ScanResult): MetadataCollection`
-
-**Purpose**: Transform scan results into metadata collection
-
-**Input Contract**:
 
 ```typescript
 interface GenerateInput {
@@ -71,42 +100,53 @@ interface MetadataCollection {
 
 #### `writeMetadataSync(metadata: MetadataCollection, outputPath: string): void`
 
-**Purpose**: Write metadata to JSON file
+**Purpose**: knowledges/meta.json にメタデータを書き込み
 
 **Input Contract**:
 
 ```typescript
 interface WriteInput {
-  metadata: MetadataCollection; // Valid metadata object
-  outputPath: string; // File path for output
+  metadata: KnowledgeMetadata; // Valid metadata object with totalFiles, lastUpdated
+  outputPath: string; // 固定で "knowledges/meta.json"
 }
 ```
 
 **Output Contract**:
 
-- Creates file at specified path with valid JSON
+- Creates file at knowledges/meta.json with valid JSON
 - File encoding: UTF-8
-- JSON formatting: Compact (no pretty-printing in library function)
+- JSON formatting: 既存形式（3 階層構造）
 
 **Error Contract**:
 
-- Throws `WritePermissionError` if cannot write to output path
-- Throws `InvalidMetadataError` if metadata fails validation
+- Throws `WritePermissionError` if cannot write to knowledges/meta.json
 - Throws `FileSystemError` for other I/O errors
 
-### Validation Functions
+## 現在の実装方式（単一スクリプト）
 
-#### `validateMetadata(metadata: MetadataCollection): ValidationResult`
-
-**Purpose**: Validate metadata structure and business rules
-
-**Input Contract**:
+### 実際のコード構造
 
 ```typescript
-interface MetadataCollection {
-  categories: Category[];
-}
+// scripts/generate-metadata.ts
+// 1. readDirSync でknowledgesをスキャン
+// 2. 3階層まで再帰処理
+// 3. metadata object構築
+// 4. writeFileSync でmeta.json書き込み
 ```
+
+### エラーハンドリング
+
+- 基本的なファイルシステムエラー処理
+- knowledges ディレクトリの存在確認
+- JSON 書き込みエラー処理
+
+## 将来のライブラリ化時の追加予定機能
+
+### Validation Functions（将来実装時）
+
+#### `validateMetadata(metadata: KnowledgeMetadata): ValidationResult`
+
+**Purpose**: 3 階層メタデータ構造の検証
 
 **Output Contract**:
 
@@ -123,53 +163,66 @@ interface ValidationError {
 }
 ```
 
-**Validation Rules**:
+````
 
+**Validation Rules（将来実装時）**:
+
+- 3階層固定（categories → subCategories → subSubCategories）
 - All category names must be non-empty strings
 - All points must be non-negative integers
-- All points must equal sum of direct files + subcategory points
-- No duplicate category names at same level
-- All names arrays must contain only .md files
-- Maximum nesting depth: 10 levels (practical limit)
+- 全ファイル対象（.md以外も含む）
+- totalFiles と lastUpdated の自動生成
 
-### Utility Functions
+## 現在の実装特徴
 
-#### `calculatePoints(category: Category): number`
-
-**Purpose**: Calculate total points for a category
-
-**Input Contract**:
+### 既存のエラーハンドリング
 
 ```typescript
-interface Category {
+// scripts/generate-metadata.ts での基本的なエラー処理
+try {
+  // ディレクトリスキャン
+  // メタデータ生成
+  // ファイル書き込み
+} catch (error) {
+  console.error('Error:', error.message);
+  process.exit(1);
+}
+````
+
+### 既存の型定義（推定）
+
+```typescript
+interface CategoryMetadata {
+  category: string;
+  point: number;
   names?: string[];
-  subCategories?: SubCategory[];
+  subCategories?: CategoryMetadata[];
+  subSubCategories?: CategoryMetadata[]; // 3階層目
+}
+
+interface KnowledgeMetadata {
+  categories: CategoryMetadata[];
+  totalFiles: number;
+  lastUpdated: string;
 }
 ```
 
-**Output Contract**:
+### 既存の処理制限
 
-- Returns non-negative integer
-- Formula: (names?.length || 0) + sum(subCategories.map(calculatePoints))
+- **Depth Limit**: 3 階層固定
+- **File Types**: 全ファイル対象
+- **Output**: knowledges/meta.json 固定
+- **Input**: knowledges ディレクトリ固定
 
-#### `isMarkdownFile(filename: string): boolean`
+## 将来のライブラリ化時の拡張予定
 
-**Purpose**: Check if filename has .md extension
+### Performance Goals（将来実装時）
 
-**Input Contract**:
+- `scanDirectorySync`: O(n) where n = total files + directories
+- `generateMetadata`: O(n) where n = total scan results
+- `writeMetadataSync`: O(1) relative to directory size
 
-```typescript
-interface Input {
-  filename: string; // Just filename, not full path
-}
-```
-
-**Output Contract**:
-
-- Returns true if filename ends with `.md` (case-insensitive)
-- Returns false otherwise
-
-## Error Hierarchy
+### Error Hierarchy（将来実装時）
 
 ```typescript
 export class MetadataGeneratorError extends Error {
@@ -184,52 +237,7 @@ export class DirectoryNotFoundError extends MetadataGeneratorError {
     super(`Directory not found: ${path}`, "DIRECTORY_NOT_FOUND");
   }
 }
-
-export class PermissionError extends MetadataGeneratorError {
-  constructor(path: string, operation: string) {
-    super(`Permission denied: ${operation} ${path}`, "PERMISSION_DENIED");
-  }
-}
-
-export class ValidationError extends MetadataGeneratorError {
-  constructor(message: string) {
-    super(`Validation failed: ${message}`, "VALIDATION_FAILED");
-  }
-}
 ```
-
-## Type Definitions
-
-```typescript
-export interface ScanOptions {
-  baseDirectory: string;
-  includeEmptyDirectories?: boolean; // default: false
-  maxDepth?: number; // default: 10
-  fileExtensions?: string[]; // default: ['.md']
-}
-
-export interface Category {
-  category: string;
-  point: number;
-  names?: string[];
-  subCategories?: SubCategory[];
-}
-
-export interface SubCategory extends Category {}
-
-export interface MetadataCollection {
-  categories: Category[];
-}
-```
-
-## Performance Guarantees
-
-### Time Complexity
-
-- `scanDirectorySync`: O(n) where n = total files + directories
-- `generateMetadata`: O(n) where n = total scan results
-- `writeMetadataSync`: O(1) relative to directory size
-- `validateMetadata`: O(n) where n = total categories
 
 ### Memory Usage
 

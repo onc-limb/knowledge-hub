@@ -1,53 +1,48 @@
-# Data Model: knowledges ディレクトリメタデータ生成機能
+# Data Model: knowledges ディレクトリメタデータ生成機能（既存実装ベース）
 
-## エンティティ設計
+## 既存実装の構造
 
-### Category (カテゴリ)
+### CategoryMetadata (既存のインターフェース)
 
-knowledges 直下のディレクトリを表現するエンティティ。
+knowledges 配下のディレクトリを表現するエンティティ。既に実装済み。
 
 **フィールド**:
 
 ```typescript
-interface Category {
+interface CategoryMetadata {
   category: string; // ディレクトリ名
-  point: number; // 直下のファイル数 + サブカテゴリのポイント合計
-  names?: string[]; // 直下のMarkdownファイル名配列 (optional)
-  subCategories?: SubCategory[]; // サブカテゴリ配列 (optional)
+  point: number; // 再帰的にカウントされた全ファイル数
+  names?: string[]; // 直下のファイル名配列 (optional)
+  subCategories?: CategoryMetadata[]; // サブカテゴリ配列 (optional)
+  subSubCategories?: CategoryMetadata[]; // サブサブカテゴリ配列 (optional) - 既存実装
 }
 ```
 
-**バリデーションルール**:
+**既存の特徴**:
 
-- `category`: 空文字列不可、ファイルシステム有効名
-- `point`: 0 以上の整数、計算値（手動設定不可）
-- `names`: .md 拡張子のファイル名のみ含む
-- `subCategories`: 再帰的な階層構造をサポート
+- `point`: 再帰的にカウントされた全ファイル数（.md ファイル限定ではない）
+- `names`: 直下のファイル名（拡張子制限なし）
+- **3 レベル階層**: `subSubCategories` まで対応済み
+- **固定深度**: 現在は 3 レベルまでの制限あり
 
-**計算ルール**:
+### KnowledgeMetadata (既存のルートエンティティ)
 
-```
-point = names.length + sum(subCategories.map(sub => sub.point))
-```
-
-### SubCategory (サブカテゴリ)
-
-カテゴリ配下のディレクトリを表現するエンティティ。Category と同じ構造を持つ再帰的構造。
+全体のメタデータ構造を表現するエンティティ。
 
 **フィールド**:
 
 ```typescript
-interface SubCategory {
-  category: string; // サブディレクトリ名
-  point: number; // 配下のファイル数 + さらに深いサブカテゴリのポイント合計
-  names?: string[]; // 配下のMarkdownファイル名配列 (optional)
-  subCategories?: SubCategory[]; // さらに深い階層のサブカテゴリ (optional)
+interface KnowledgeMetadata {
+  categories: CategoryMetadata[]; // カテゴリ配列
+  totalFiles: number; // 全ファイル数（meta.jsonを除く）
+  lastUpdated: string; // 最終更新日時（ISO文字列）
 }
 ```
 
-**バリデーションルール**:
+**既存の特徴**:
 
-- Category と同じルールを適用
+- `totalFiles`: meta.json 以外の全ファイル数
+- `lastUpdated`: 生成時のタイムスタンプ
 - 再帰の深度制限なし（実装上は合理的な制限を設ける場合あり）
 
 ### MetadataCollection (メタデータコレクション)

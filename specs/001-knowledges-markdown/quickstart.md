@@ -29,8 +29,8 @@ ls knowledges/
 ### 1. メタデータ生成（最も一般的な用途）
 
 ```bash
-# デフォルトでknowledgesディレクトリをスキャンしてmeta.jsonを更新
-node scripts/generate-metadata.ts
+# knowledgesディレクトリをスキャンしてmeta.jsonを更新
+npx tsx scripts/generate-metadata.ts
 
 # 実行結果の確認
 cat knowledges/meta.json
@@ -39,65 +39,64 @@ cat knowledges/meta.json
 **期待される結果**:
 
 - `knowledges/meta.json` が更新される
-- コンソールに処理状況が表示される
+- 3 階層構造（categories, subCategories, subSubCategories）でメタデータが生成される
+- totalFiles と lastUpdated が自動更新される
 - エラーがなければ正常終了（exit code 0）
 
-### 2. 詳細ログ付きで実行
+### 2. 実行結果の確認
 
 ```bash
-# 処理内容を詳しく確認したい場合
-node scripts/generate-metadata.ts --verbose
+# 生成されたメタデータの内容を確認
+cat knowledges/meta.json | jq .
 
 # 出力例:
-# Scanning directory: knowledges
-# Found category: ai (7 files, 1 subcategory)
-# Found category: aws (3 files, 3 subcategories)
-# Generated metadata for 8 categories
-# Written to: knowledges/meta.json
+# 生成されたJSONの整形表示で、3階層構造を確認できる
 ```
 
-### 3. 変更前の確認（ドライラン）
+### 3. 既存実装の動作確認
 
 ```bash
-# 実際にファイルを変更せずに結果を確認
-node scripts/generate-metadata.ts --dry-run
+# 現在のメタデータ生成を実行
+npx tsx scripts/generate-metadata.ts
 
-# 出力例:
-# Would scan directory: knowledges
-# Would generate metadata for:
-#   - ai (7 points)
-#   - aws (3 points)
-# Would write to: knowledges/meta.json
-# No files were modified.
+# 生成されたメタデータの構造確認
+cat knowledges/meta.json | jq '.categories[0]'
+# {
+#   "category": "ai",
+#   "point": 7,
+#   "subCategories": [
+#     {
+#       "category": "機械学習",
+#       "point": 6,
+#       "names": ["LightningCLIとは.md", "Lightningのモジュール.md", ...],
+#       "subSubCategories": [...]
+#     }
+#   ]
+# }
 ```
 
 ## 高度な使用方法
 
-### 4. 出力形式の変更
+### 4. 出力結果の分析
 
 ```bash
-# 見やすい形式で標準出力に表示
-node scripts/generate-metadata.ts --format pretty
+# 総ファイル数の確認
+cat knowledges/meta.json | jq '.totalFiles'
 
-# JSON形式で標準出力（他のツールとの連携用）
-node scripts/generate-metadata.ts --format json
+# 最終更新日時の確認
+cat knowledges/meta.json | jq '.lastUpdated'
+
+# カテゴリ別ファイル数の確認
+cat knowledges/meta.json | jq '.categories[] | {category: .category, point: .point}'
 ```
 
-### 5. カスタム出力ファイル
+### 5. メタデータの定期更新
 
 ```bash
-# 別の場所にメタデータファイルを生成
-node scripts/generate-metadata.ts --output backup/meta.json
-
-# 一時的なメタデータ生成
-node scripts/generate-metadata.ts --output /tmp/temp-meta.json
-```
-
-### 6. 異なるディレクトリのスキャン
-
-```bash
-# 別のディレクトリをスキャン（テスト用途など）
-node scripts/generate-metadata.ts ./test-knowledges --output test-meta.json
+# cronまたは定期実行スクリプトでの利用例
+npx tsx scripts/generate-metadata.ts
+git add knowledges/meta.json
+git commit -m "chore: update knowledges metadata"
 ```
 
 ## 実際の作業フロー例
@@ -109,56 +108,63 @@ node scripts/generate-metadata.ts ./test-knowledges --output test-meta.json
 echo "# 新しい記事" > knowledges/typescript/新しい記事.md
 
 # 2. メタデータを更新
-node scripts/generate-metadata.ts --verbose
+npx tsx scripts/generate-metadata.ts
 
 # 3. 変更を確認
 git diff knowledges/meta.json
 ```
 
-### シナリオ 2: カテゴリ構造を大幅に変更した後
+### シナリオ 2: カテゴリ構造を変更した後
 
 ```bash
 # 1. 現在の状態を確認
-node scripts/generate-metadata.ts --dry-run
+cat knowledges/meta.json | jq '.categories | length'
 
-# 2. 実際に更新
-node scripts/generate-metadata.ts
+# 2. メタデータを更新
+npx tsx scripts/generate-metadata.ts
 
 # 3. 変更内容の検証
-node scripts/generate-metadata.ts --format pretty
+cat knowledges/meta.json | jq '.categories[] | .category'
 ```
 
 ### シナリオ 3: 統計情報の確認
 
 ```bash
 # 1. 現在の統計を確認
-node scripts/generate-metadata.ts --format pretty
+cat knowledges/meta.json | jq '{totalFiles: .totalFiles, lastUpdated: .lastUpdated}'
 
 # 2. カテゴリ別のファイル数を取得
-jq '.categories[] | {category: .category, point: .point}' knowledges/meta.json
+cat knowledges/meta.json | jq '.categories[] | {category: .category, point: .point}'
 ```
 
 ## トラブルシューティング
 
 ### よくある問題と解決方法
 
-#### 問題 1: Permission denied エラー
+#### 問題 1: TypeScript 実行エラー
 
 ```bash
-Error: Permission denied accessing directory: knowledges
+Error: Could not resolve TypeScript module
 ```
 
 **解決方法**:
 
-```bash
-# ディレクトリの権限を確認
-ls -la knowledges/
+**解決方法**:
 
-# 必要に応じて権限を修正
-chmod 755 knowledges/
+```bash
+# tsxまたはts-nodeがインストールされているか確認
+npm list tsx ts-node
+
+# 必要に応じてインストール
+npm install -g tsx
+# または
+npm install -g ts-node
+
+# プロジェクトローカルでの実行
+npx tsx scripts/generate-metadata.ts
 ```
 
-#### 問題 2: Directory not found エラー
+#### 問題 2: knowledges ディレクトリが見つからない
 
 ```bash
 Error: Directory not found: knowledges
@@ -177,7 +183,7 @@ ls -la | grep knowledges
 cd /path/to/knowledge-hub
 ```
 
-#### 問題 3: JSON 書き込みエラー
+#### 問題 3: メタデータファイルの書き込みエラー
 
 ```bash
 Error: Cannot write to output file: knowledges/meta.json
@@ -199,11 +205,11 @@ chmod 755 knowledges/
 ### 詳細なログの取得
 
 ```bash
-# デバッグモードで実行
-DEBUG=metadata-generator node scripts/generate-metadata.ts --verbose
+# TypeScript実行環境でのデバッグ
+npx tsx scripts/generate-metadata.ts
 
 # ログファイルに出力
-node scripts/generate-metadata.ts --verbose 2>&1 | tee metadata-generation.log
+npx tsx scripts/generate-metadata.ts 2>&1 | tee metadata-generation.log
 ```
 
 ## 検証方法
@@ -212,31 +218,44 @@ node scripts/generate-metadata.ts --verbose 2>&1 | tee metadata-generation.log
 
 ```bash
 # JSON形式の妥当性チェック
-jq empty knowledges/meta.json && echo "Valid JSON" || echo "Invalid JSON"
+cat knowledges/meta.json | jq empty && echo "Valid JSON" || echo "Invalid JSON"
 
 # スキーマ検証（jqを使用）
-jq '.categories | type' knowledges/meta.json  # "array"が出力されるべき
+cat knowledges/meta.json | jq '.categories | type'  # "array"が出力されるべき
+cat knowledges/meta.json | jq '.totalFiles | type'  # "number"が出力されるべき
+cat knowledges/meta.json | jq '.lastUpdated | type'  # "string"が出力されるべき
 
-# ファイル数の手動確認
-find knowledges -name "*.md" | wc -l
-# この数値とmeta.jsonの全pointの合計が一致するべき
+# 3階層構造の確認
+cat knowledges/meta.json | jq '.categories[0].subCategories[0].subSubCategories | type'
 ```
 
 ### パフォーマンス測定
 
 ```bash
 # 実行時間の測定
-time node scripts/generate-metadata.ts
+time npx tsx scripts/generate-metadata.ts
 
-# メモリ使用量の確認（Node.js）
-node --max-old-space-size=100 scripts/generate-metadata.ts
+# ファイル数の確認
+find knowledges -type f | wc -l
+# この数値とmeta.jsonのtotalFilesが一致するべき
 ```
 
 ## 次のステップ
 
-1. **自動化**: CI パイプラインでの自動メタデータ更新
-2. **監視**: ファイル変更の監視と自動実行
-3. **拡張**: カスタムフィルタやフォーマットの追加
+1. **テスト追加**: 既存実装用のテストスイート構築
+2. **ドキュメント**: 契約仕様書の完成
+3. **監視**: ファイル変更の監視と自動実行
+
+### package.json スクリプト化
+
+```json
+{
+  "scripts": {
+    "generate-metadata": "tsx scripts/generate-metadata.ts",
+    "metadata:check": "jq empty knowledges/meta.json"
+  }
+}
+```
 
 ### CI 統合例
 
@@ -251,10 +270,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: node scripts/generate-metadata.ts
+      - run: npm install
+      - run: npx tsx scripts/generate-metadata.ts
       - run: git add knowledges/meta.json
-      - run: git commit -m "Update metadata" || exit 0
+      - run: git commit -m "chore: update knowledges metadata" || exit 0
       - run: git push
 ```
 
-この quickstart ガイドに従うことで、メタデータ生成機能を効果的に活用できるようになります。
+この quickstart ガイドに従うことで、既存のメタデータ生成機能を効果的に活用できるようになります。
