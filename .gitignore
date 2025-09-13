@@ -1,3 +1,7 @@
 .obsidian
 node_modules
 dist
+Proofreading/.env
+*.pyc
+__pycache__/
+.pytest_cache/
