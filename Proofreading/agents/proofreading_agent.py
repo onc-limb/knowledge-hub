@@ -1,28 +1,44 @@
 """
-Proofreading Agent for text improvement and style checking
+Proofreading Agent for text improvement and style checking using ADK
 """
-import asyncio
 from typing import Dict, Any, List
-from agents.base_agent import BaseAgent
+from google.adk.agents import LlmAgent
 from agents.text_analyzer import TextAnalyzer
 from agents.suggestion_generator import SuggestionGenerator
 from utils.mcp_client import MCPClient
 
-class ProofreadingAgent(BaseAgent):
-    """Agent responsible for proofreading and style improvement"""
+class ProofreadingAgent(LlmAgent):
+    """Agent responsible for proofreading and style improvement using ADK"""
     
     def __init__(self):
-        super().__init__("ProofreadingAgent")
+        super().__init__(
+            name="ProofreadingAgent",
+            model="gemini-2.0-flash-exp",
+            instruction="""
+            You are a Proofreading Agent responsible for improving technical articles.
+            Your tasks include:
+            1. Check grammar and linguistic issues
+            2. Analyze writing style and consistency
+            3. Assess readability and comprehensibility
+            4. Generate improvement suggestions
+            5. Provide detailed proofreading summary
+            
+            Focus on technical accuracy, clarity, and professional presentation.
+            """,
+            description="Specialized agent for proofreading and style improvement",
+            tools=[]
+        )
+        
         self.textlint_client = MCPClient('textlint')
         self.analyzer = TextAnalyzer(self.textlint_client)
         self.suggestion_generator = SuggestionGenerator()
     
-    async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process article content for proofreading"""
         content = input_data.get('content', '')
         path = input_data.get('path', '')
         
-        self.log(f"Starting proofreading for: {path}")
+        print(f"[ProofreadingAgent] Starting proofreading for: {path}")
         
         # Perform different types of proofreading
         grammar_check = await self.analyzer.check_grammar(content, self)

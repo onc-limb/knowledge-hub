@@ -33,10 +33,6 @@ class ProofreadingService:
             # Initialize and run agents
             click.echo("🤖 エージェントを初期化中...")
             root_agent = RootAgent()
-            evidence_agent = EvidenceAgent()
-            proofreading_agent = ProofreadingAgent()
-            
-            root_agent.set_agents(evidence_agent, proofreading_agent)
             
             click.echo("⚡ 校閲プロセスを開始...")
             
@@ -46,7 +42,7 @@ class ProofreadingService:
                 'metadata': article_info
             }
             
-            result = await root_agent.process(input_data)
+            result = await root_agent.run(input_data)
             
             # Display and save results
             await self._display_results(result)

@@ -1,5 +1,5 @@
 """
-Evidence research functionality
+Evidence research functionality using ADK
 """
 from typing import Dict, Any, List
 from utils.mcp_client import MCPClient
@@ -36,21 +36,13 @@ class EvidenceResearcher:
             'verified': len(research_attempts) > 0
         }
     
-    async def generate_summary(self, research_results: List[Dict], agent) -> str:
+    async def generate_summary(self, research_results: List[Dict]) -> str:
         """Generate summary of evidence research"""
         verified_count = sum(1 for r in research_results if r['verified'])
         total_count = len(research_results)
         
-        prompt = f"""
-        エビデンス調査の結果をまとめてください。
-        
-        調査した主張の数: {total_count}
-        検証できた主張の数: {verified_count}
-        
-        調査結果の概要を日本語で生成してください。
-        """
-        
-        return await agent.call_llm(prompt)
+        # ADK will generate the summary automatically
+        return f"エビデンス調査完了: {total_count}個の主張中{verified_count}個が検証されました。"
     
     async def generate_recommendations(self, research_results: List[Dict]) -> List[str]:
         """Generate recommendations based on research results"""

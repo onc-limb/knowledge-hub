@@ -1,34 +1,24 @@
 """
-Base Agent class for all proofreading agents
+Base Agent class for all proofreading agents using ADK
 """
-import asyncio
-from abc import ABC, abstractmethod
+from google.adk.agents import LlmAgent
 from typing import Dict, Any, List
-from config.llm_config import LLMConfig
 
-class BaseAgent(ABC):
-    """Base class for all agents in the proofreading system"""
+class BaseAgent(LlmAgent):
+    """Base class for all agents in the proofreading system using ADK"""
     
-    def __init__(self, name: str):
-        self.name = name
-        self.llm_config = LLMConfig()
-        self.model = self.llm_config.get_model()
+    def __init__(self, name: str, model: str = "gemini-2.0-flash-exp", instruction: str = "", description: str = "", tools: List | None = None):
+        super().__init__(
+            name=name,
+            model=model,
+            instruction=instruction or f"You are a {name} agent for proofreading technical articles.",
+            description=description or f"Specialized agent for {name.lower()} tasks in proofreading",
+            tools=tools or []
+        )
     
-    @abstractmethod
-    async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Process input data and return results"""
-        pass
-    
-    def generate_prompt(self, template: str, **kwargs) -> str:
-        """Generate prompt from template with given parameters"""
-        return template.format(**kwargs)
-    
-    async def call_llm(self, prompt: str) -> str:
-        """Call the LLM with the given prompt"""
-        try:
-            return self.llm_config.generate_response(prompt)
-        except Exception as e:
-            return f"Error calling LLM: {str(e)}"
+    async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process input data and return results - to be implemented by subclasses"""
+        raise NotImplementedError("Subclasses must implement run method")
     
     def log(self, message: str):
         """Log a message"""
