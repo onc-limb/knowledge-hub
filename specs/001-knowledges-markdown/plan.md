@@ -31,7 +31,7 @@
 
 ## Summary
 
-knowledges 配下の Markdown ファイルを再帰的にスキャンし、カテゴリ・サブカテゴリ・サブサブカテゴリの 3 階層メタデータを meta.json に生成する機能。TypeScript による Node.js CLI ツール（scripts/generate-metadata.ts）として**既に実装済み**であり、本仕様書は既存実装に合わせて設計文書を整備するもの。
+knowledges 配下の Markdown ファイルを再帰的にスキャンし、カテゴリ・サブカテゴリの無制限階層メタデータを meta.json に生成する機能。TypeScript による Node.js CLI ツール（scripts/generate-metadata.ts）として**既に実装済み**であり、本仕様書は既存実装に合わせて設計文書を整備するもの。
 
 ## Technical Context
 
@@ -42,7 +42,7 @@ knowledges 配下の Markdown ファイルを再帰的にスキャンし、カ�
 **Target Platform**: Node.js 環境 (開発者のローカル環境)
 **Project Type**: single (既存の knowledge-hub プロジェクトに統合済み)  
 **Performance Goals**: 現行実装で十分なパフォーマンス  
-**Constraints**: 既存の meta.json 形式（3 階層、totalFiles、lastUpdated）の維持  
+**Constraints**: 既存の meta.json 形式（無制限階層、totalFiles、lastUpdated）の維持  
 **Scale/Scope**: knowledges 配下の全ファイル (現在約 20 ファイル、将来的に数百ファイル程度)
 
 ## Constitution Check
@@ -200,10 +200,10 @@ ios/ or android/
 
 1. **TypeScript/Node.js**: 既存実装として動作中
 2. **ファイルシステムAPI**: Node.js標準のfs/pathモジュール使用
-3. **3階層構造**: categories → subCategories → subSubCategories
+3. **無制限階層構造**: categories → subCategories (再帰的)
 4. **全ファイル対象**: MarkdownファイルかWhfichくfとかによらず全ファイルをスキャン
 5. **統計情報**: totalFiles、lastUpdated の自動生成
-6. **再帰処理**: 3階層までの固定深度処理
+6. **再帰処理**: 無制限階層までの再帰深度処理
 
 **Output**: research.md (技術調査結果)
 
@@ -211,7 +211,7 @@ ios/ or android/
 *Prerequisites: research.md complete*
 
 1. **Extract entities from existing implementation** → `data-model.md`:
-   - CategoryMetadata (3階層: category, subCategories, subSubCategories)
+   - CategoryMetadata (無制限階層: category, subCategories の再帰構造)
    - KnowledgeMetadata (totalFiles, lastUpdated)
    - FileSystemScanResult (ファイル統計とメタデータ構造)
 
@@ -222,11 +222,11 @@ ios/ or android/
 
 3. **Plan contract tests** for existing implementation:
    - CLI実行テスト
-   - JSON出力形式検証（3階層、totalFiles、lastUpdated）
+   - JSON出力形式検証（無制限階層、totalFiles、lastUpdated）
    - エラーハンドリングテスト
 
 4. **Extract test scenarios** from existing behavior:
-   - 3階層スキャンシナリオ
+   - 無制限階層スキャンシナリオ
    - 全ファイル対象処理
    - 既存形式維持テスト
 

@@ -13,8 +13,7 @@ interface CategoryMetadata {
   category: string; // ディレクトリ名
   point: number; // 再帰的にカウントされた全ファイル数
   names?: string[]; // 直下のファイル名配列 (optional)
-  subCategories?: CategoryMetadata[]; // サブカテゴリ配列 (optional)
-  subSubCategories?: CategoryMetadata[]; // サブサブカテゴリ配列 (optional) - 既存実装
+  subCategories?: CategoryMetadata[]; // サブカテゴリ配列 (再帰的構造、深度制限なし)
 }
 ```
 
@@ -22,8 +21,8 @@ interface CategoryMetadata {
 
 - `point`: 再帰的にカウントされた全ファイル数（.md ファイル限定ではない）
 - `names`: 直下のファイル名（拡張子制限なし）
-- **3 レベル階層**: `subSubCategories` まで対応済み
-- **固定深度**: 現在は 3 レベルまでの制限あり
+- **無制限階層**: `subCategories` の再帰的な構造により、任意の深度まで対応
+- **改良必要**: 現在の実装は固定 3 レベルのため、完全な再帰構造への改良が必要
 
 ### KnowledgeMetadata (既存のルートエンティティ)
 
@@ -43,7 +42,7 @@ interface KnowledgeMetadata {
 
 - `totalFiles`: meta.json 以外の全ファイル数
 - `lastUpdated`: 生成時のタイムスタンプ
-- 再帰の深度制限なし（実装上は合理的な制限を設ける場合あり）
+- 再帰の深度制限なし（パフォーマンス上の合理的な制限は実装時に考慮）
 
 ### MetadataCollection (メタデータコレクション)
 
@@ -88,7 +87,7 @@ interface ScanResult {
   directoryPath: string;
   markdownFiles: string[];
   subdirectories: string[];
-  scanResults: ScanResult[]; // 再帰的な構造
+  scanResults: ScanResult[]; // 再帰的な構造（深度制限なし）
 }
 ```
 
@@ -179,7 +178,7 @@ export interface Category {
 }
 
 export interface SubCategory extends Category {
-  // SubCategoryはCategoryと同じ構造（再帰的）
+  // SubCategoryはCategoryと同じ構造（完全に再帰的、深度制限なし）
 }
 
 export interface MetadataCollection {
@@ -196,6 +195,6 @@ export interface ScanOptions {
 export interface ScanResult {
   path: string;
   files: string[];
-  subdirectories: ScanResult[];
+  subdirectories: ScanResult[]; // 無制限の再帰的構造
 }
 ```

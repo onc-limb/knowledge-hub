@@ -15,13 +15,13 @@
    → contracts/: CLI interface, Library API contracts
    → research.md: Node.js標準ライブラリ、同期処理選択
 3. Analyze existing implementation: ✓
-   → Current: 3-level fixed hierarchy (subSubCategories)
+   → Current: 固定3階層制限 (subSubCategories) - 無制限階層への改良が必要
    → Current: All files included (not just .md)
    → Current: totalFiles, lastUpdated metadata
 4. Generate improvement tasks: ✓
    → Setup: Testing環境、型定義改良
    → Tests: 既存機能のテスト追加
-   → Enhancement: 無限階層対応、.mdフィルタ、CLIオプション
+   → Enhancement: 無制限階層対応、.mdフィルタ、CLIオプション
    → Refactoring: コード整理、エラーハンドリング改善
    → Polish: パフォーマンス、ドキュメント
 5. Apply task rules: ✓
@@ -55,7 +55,7 @@
 **CRITICAL: These tests cover existing behavior and MUST PASS with current implementation**
 
 - [ ] T004 [P] Contract test for current CLI usage: `node scripts/generate-metadata.ts`
-- [ ] T005 [P] Integration test for 3-level hierarchy (categories→subCategories→subSubCategories)
+- [ ] T005 [P] Integration test for unlimited depth hierarchy (categories→subCategories 無制限再帰)
 - [ ] T006 [P] Integration test for current file counting behavior (all files, not just .md)
 - [ ] T007 [P] Integration test for totalFiles and lastUpdated metadata fields
 - [ ] T008 [P] Integration test for hierarchy console output display
@@ -66,11 +66,11 @@
 
 - [ ] T011 Add CLI argument parsing (--help, --version, --format options)
 - [ ] T012 Add markdown-only filtering option (--md-only flag)
-- [ ] T013 Implement unlimited depth hierarchy (remove 3-level limit)
+- [ ] T013 Implement unlimited depth hierarchy (remove any depth limits)
 - [ ] T014 [P] Add proper TypeScript type definitions for existing interfaces
 - [ ] T015 [P] Add error handling improvements to scanDirectory function
 - [ ] T016 [P] Add validation for input directory and file permissions
-- [ ] T017 Add backward compatibility mode (--legacy for 3-level hierarchy)
+- [ ] T017 Add backward compatibility mode (--legacy for fixed depth hierarchy)
 
 ## Phase 3.4: Integration & Enhancement
 
@@ -84,7 +84,7 @@
 - [ ] T022 [P] Unit tests for new CLI option parsing
 - [ ] T023 [P] Unit tests for markdown filtering functionality
 - [ ] T024 [P] Unit tests for unlimited depth scanning
-- [ ] T025 Performance tests (compare with existing 3-level performance)
+- [ ] T025 Performance tests (compare unlimited depth with existing implementation performance)
 - [ ] T026 [P] Update quickstart.md with new CLI options
 - [ ] T027 [P] Create documentation for backward compatibility options
 - [ ] T028 Refactor existing code for better maintainability
@@ -99,7 +99,7 @@ Specific dependencies:
 - T001 (analysis) blocks all other tasks - must understand existing implementation first
 - T004-T010 (existing functionality tests) must PASS before enhancements
 - T011-T017 can run in parallel where marked [P]
-- T013 (unlimited depth) requires T005 (3-level test) to pass first
+- T013 (unlimited depth) requires T005 (unlimited depth test) to pass first
 - T012 (markdown filtering) is independent enhancement
 - Performance tests (T025) require existing and new implementations for comparison
 ```
@@ -147,7 +147,7 @@ Task: "Contract test library API scanDirectorySync in tests/contract/library-api
 Task: "Contract test library API generateMetadata in tests/contract/library-api-metadata.test.ts"
 
 # Phase 3.2 - Launch integration tests together:
-Task: "Integration test markdown file scanning in tests/integration/markdown-scan.test.ts"
+Task: "Integration test unlimited depth hierarchy scanning in tests/integration/unlimited-depth.test.ts"
 Task: "Integration test recursive directory processing in tests/integration/recursive-scan.test.ts"
 Task: "Integration test metadata generation in tests/integration/metadata-generation.test.ts"
 Task: "Integration test existing meta.json compatibility in tests/integration/compatibility.test.ts"
