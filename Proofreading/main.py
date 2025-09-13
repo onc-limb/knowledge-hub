@@ -8,7 +8,7 @@ Proofreading Agent System
     python main.py list-files -p articles
     
 環境設定:
-    1. pip install -r requirements.txt
+    1. uv sync
     2. .env.templateを参考に.envファイルを作成
     3. 必要なAPIキーを.envファイルに設定
 """
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         sys.exit(1)
     
     # Check if running from correct directory
-    if not (current_dir / 'requirements.txt').exists():
+    if not (current_dir / 'pyproject.toml').exists():
         print("❌ Proofreadingディレクトリから実行してください")
         sys.exit(1)
     

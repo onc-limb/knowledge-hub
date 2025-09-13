@@ -9,7 +9,7 @@ from typing import List, Dict
 class FileManager:
     """Manages file operations for article processing"""
     
-    def __init__(self, repository_root: str = None):
+    def __init__(self, repository_root: str | None = None):
         if repository_root is None:
             # Find the repository root (where .git directory exists)
             current_path = Path(__file__).parent
@@ -32,7 +32,7 @@ class FileManager:
         except Exception as e:
             raise FileNotFoundError(f"Could not read file {file_path}: {str(e)}")
     
-    def find_markdown_files(self, search_pattern: str = None) -> List[str]:
+    def find_markdown_files(self, search_pattern: str | None = None) -> List[str]:
         """Find markdown files in the repository"""
         markdown_files = []
         for root, dirs, files in os.walk(self.repository_root):
@@ -50,7 +50,7 @@ class FileManager:
         
         return markdown_files
     
-    def parse_markdown(self, content: str) -> Dict[str, str]:
+    def parse_markdown(self, content: str) -> Dict[str, str | int]:
         """Parse markdown content and extract metadata"""
         lines = content.split('\n')
         

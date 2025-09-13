@@ -127,12 +127,16 @@ class ProofreadingService:
             file_manager = FileManager()
             markdown_files = file_manager.find_markdown_files(pattern)
             
-            click.echo(f"📄 発見されたマークダウンファイル ({len(markdown_files)}件):")
+            # Filter files to only include those in articles/, books/, knowledges/
+            target_dirs = ['articles/', 'books/', 'knowledges/']
+            filtered_files = [f for f in markdown_files if any(f.startswith(d) for d in target_dirs)]
             
-            for file_path in markdown_files:
+            click.echo(f"📄 発見されたマークダウンファイル ({len(filtered_files)}件):")
+            
+            for file_path in filtered_files:
                 click.echo(f"   • {file_path}")
             
-            if not markdown_files:
+            if not filtered_files:
                 click.echo("   マークダウンファイルが見つかりませんでした。")
             
         except Exception as e:

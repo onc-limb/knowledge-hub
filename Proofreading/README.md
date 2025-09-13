@@ -14,12 +14,12 @@
 
 ```bash
 cd Proofreading
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. 環境設定
 
-`.env.template`をコピーして`.env`ファイルを作成し、APIキーを設定：
+`.env.template`をコピーして`.env`ファイルを作成し、API キーを設定：
 
 ```bash
 cp .env.template .env
@@ -53,18 +53,18 @@ python main.py list-files -p "articles"
 ### エージェント構成
 
 - **RootAgent**: タスク分散と結果統合
-- **EvidenceAgent**: エビデンス調査（MCP使用）
-- **ProofreadingAgent**: 文章校閲（textlint MCP使用）
+- **EvidenceAgent**: エビデンス調査（MCP 使用）
+- **ProofreadingAgent**: 文章校閲（textlint MCP 使用）
 
-### MCP統合
+### MCP 統合
 
-- Firecrawl: Webサイト調査
-- DeepWiki: OSSライブラリ調査  
-- AWS Documentation: AWS情報調査
+- Firecrawl: Web サイト調査
+- DeepWiki: OSS ライブラリ調査
+- AWS Documentation: AWS 情報調査
 - textlint: 日本語文章校閲
 
 ## 設計原則
 
-- ファイルは100行以内
+- ファイルは 100 行以内
 - 独立性の高いモジュール設計
 - 非同期処理による効率化
