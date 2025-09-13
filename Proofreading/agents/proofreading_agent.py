@@ -29,9 +29,14 @@ class ProofreadingAgent(LlmAgent):
             tools=[]
         )
         
-        self.textlint_client = MCPClient('textlint')
-        self.analyzer = TextAnalyzer(self.textlint_client)
-        self.suggestion_generator = SuggestionGenerator()
+        # Initialize resources after super().__init__
+        self._init_resources()
+    
+    def _init_resources(self):
+        """Initialize textlint client, analyzer, and suggestion generator"""
+        self._textlint_client = MCPClient('textlint')
+        self._analyzer = TextAnalyzer(self._textlint_client)
+        self._suggestion_generator = SuggestionGenerator()
     
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process article content for proofreading"""
@@ -41,17 +46,17 @@ class ProofreadingAgent(LlmAgent):
         print(f"[ProofreadingAgent] Starting proofreading for: {path}")
         
         # Perform different types of proofreading
-        grammar_check = await self.analyzer.check_grammar(content, self)
-        style_check = await self.analyzer.check_style(content, self)
-        readability_check = await self.suggestion_generator.check_readability(content, self)
+        grammar_check = await self._analyzer.check_grammar(content)
+        style_check = await self._analyzer.check_style(content)
+        readability_check = await self._suggestion_generator.check_readability(content)
         
         # Generate improvement suggestions
-        suggestions = await self.suggestion_generator.generate_suggestions(
-            content, grammar_check, style_check, readability_check, self
+        suggestions = await self._suggestion_generator.generate_suggestions(
+            content, grammar_check, style_check, readability_check
         )
         
         # Generate summary
-        summary = await self.suggestion_generator.generate_summary(suggestions, self)
+        summary = await self._suggestion_generator.generate_summary(suggestions)
         
         return {
             'grammar_issues': grammar_check,

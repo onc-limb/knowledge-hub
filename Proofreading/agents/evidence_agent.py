@@ -3,7 +3,6 @@ Evidence Research Agent for fact-checking article content using ADK
 """
 from typing import Dict, Any, List
 from google.adk.agents import LlmAgent
-from agents.claim_extractor import extract_claims
 from agents.evidence_researcher import EvidenceResearcher
 from utils.mcp_client import MCPClient
 
@@ -11,8 +10,8 @@ class EvidenceAgent(LlmAgent):
     """Agent responsible for researching evidence and fact-checking using ADK"""
     
     def __init__(self):
-        # Define tools for the agent
-        tools = [extract_claims]  # Add more tools as needed
+        # Define tools for the agent - temporarily empty to resolve errors
+        tools = []  # Will add proper tools later
         
         super().__init__(
             name="EvidenceAgent",
@@ -31,12 +30,33 @@ class EvidenceAgent(LlmAgent):
             tools=tools
         )
         
-        self.mcp_clients = {
+        # Initialize MCP clients and researcher after super().__init__
+        self._init_resources()
+    
+    def _init_resources(self):
+        """Initialize MCP clients and researcher resources"""
+        self._mcp_clients = {
             'firecrawl': MCPClient('firecrawl'),
             'deepwiki': MCPClient('deepwiki'),
             'aws_docs': MCPClient('aws-docs')
         }
-        self.researcher = EvidenceResearcher(self.mcp_clients)
+        self._researcher = EvidenceResearcher(self._mcp_clients)
+    
+    def _extract_claims_simple(self, content: str) -> List[str]:
+        """Simple claim extraction as fallback"""
+        # Basic implementation - extract sentences that contain factual statements
+        import re
+        sentences = re.split(r'[.!?]+', content)
+        claims = []
+        
+        # Look for sentences that might contain claims
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if len(sentence) > 20 and any(keyword in sentence.lower() for keyword in 
+                ['は', 'です', 'である', 'できる', 'する', '機能', '方法', '技術']):
+                claims.append(sentence)
+        
+        return claims[:5]  # Limit to first 5 claims
     
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process article content for evidence verification"""
@@ -45,18 +65,18 @@ class EvidenceAgent(LlmAgent):
         
         print(f"[EvidenceAgent] Starting evidence research for: {path}")
         
-        # Extract claims using the tool
-        claims = extract_claims(content)
+        # Extract claims using the tool - for now use a simple method
+        claims = self._extract_claims_simple(content)
         
         # Research each claim
         research_results = []
         for claim in claims:
-            result = await self.researcher.research_claim(claim)
+            result = await self._researcher.research_claim(claim)
             research_results.append(result)
         
         # Generate summary and recommendations
-        summary = await self.researcher.generate_summary(research_results, self)
-        recommendations = await self.researcher.generate_recommendations(research_results)
+        summary = await self._researcher.generate_summary(research_results)
+        recommendations = await self._researcher.generate_recommendations(research_results)
         
         return {
             'claims_researched': len(claims),

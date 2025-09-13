@@ -10,10 +10,6 @@ class RootAgent(LlmAgent):
     """Root agent that distributes tasks to specialized agents using ADK"""
     
     def __init__(self):
-        # Create sub-agents
-        evidence_agent = EvidenceAgent()
-        proofreading_agent = ProofreadingAgent()
-        
         super().__init__(
             name="RootAgent",
             model="gemini-2.0-flash-exp",
@@ -29,12 +25,16 @@ class RootAgent(LlmAgent):
             actionable recommendations for improvement.
             """,
             description="Coordinator agent for proofreading workflow",
-            tools=[],
-            sub_agents=[evidence_agent, proofreading_agent]
+            tools=[]
         )
         
-        self.evidence_agent = evidence_agent
-        self.proofreading_agent = proofreading_agent
+        # Initialize sub-agents after super().__init__
+        self._init_sub_agents()
+    
+    def _init_sub_agents(self):
+        """Initialize sub-agents"""
+        self._evidence_agent = EvidenceAgent()
+        self._proofreading_agent = ProofreadingAgent()
     
     async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process the article and coordinate between agents"""
@@ -44,8 +44,8 @@ class RootAgent(LlmAgent):
         print(f"[RootAgent] Starting proofreading process for: {article_path}")
         
         # Run both agents concurrently
-        evidence_result = await self.evidence_agent.run(input_data)
-        proofreading_result = await self.proofreading_agent.run(input_data)
+        evidence_result = await self._evidence_agent.run(input_data)
+        proofreading_result = await self._proofreading_agent.run(input_data)
         
         # Combine results
         final_result = await self._combine_results(
