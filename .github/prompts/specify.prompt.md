@@ -2,6 +2,7 @@
 description: Create or update the feature specification from a natural language feature description.
 ---
 
+ファイル生成やユーザーとのコミュニケーションはすべて日本語で行ってください。
 Given the feature description provided as an argument, do this:
 
 1. Run the script `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` from repo root and parse its JSON output for BRANCH_NAME and SPEC_FILE. All file paths must be absolute.
