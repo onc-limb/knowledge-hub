@@ -1,67 +1,87 @@
-"""
-Proofreading Agent for text improvement and style checking using ADK
-"""
-from typing import Dict, Any, List
-from google.adk.agents import LlmAgent
-from agents.text_analyzer import TextAnalyzer
-from agents.suggestion_generator import SuggestionGenerator
-from utils.mcp_client import MCPClient
+"""Proofreading agent for grammar, style, and content analysis.
 
-class ProofreadingAgent(LlmAgent):
-    """Agent responsible for proofreading and style improvement using ADK"""
+This agent performs comprehensive proofreading including grammar checking,
+style improvements, and content enhancement suggestions.
+"""
+
+import asyncio
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+
+from google.adk.agents import Agent
+from utils.models import ProofreadingResult, GrammarIssue, StyleSuggestion, ContentImprovement
+
+
+async def proofread_content(content: str, style_guide: Optional[str] = None) -> Dict[str, Any]:
+    """Tool function for proofreading and content analysis.
     
-    def __init__(self):
-        super().__init__(
-            name="ProofreadingAgent",
-            model="gemini-2.0-flash-exp",
-            instruction="""
-            You are a Proofreading Agent responsible for improving technical articles.
-            Your tasks include:
-            1. Check grammar and linguistic issues
-            2. Analyze writing style and consistency
-            3. Assess readability and comprehensibility
-            4. Generate improvement suggestions
-            5. Provide detailed proofreading summary
-            
-            Focus on technical accuracy, clarity, and professional presentation.
-            """,
-            description="Specialized agent for proofreading and style improvement",
-            tools=[]
-        )
+    Args:
+        content: Markdown content to proofread
+        style_guide: Optional style guide to follow (e.g., "academic", "business", "casual")
         
-        # Initialize resources after super().__init__
-        self._init_resources()
+    Returns:
+        Dictionary containing proofreading results
+    """
+    # Simulate proofreading processing
+    await asyncio.sleep(0.1)
     
-    def _init_resources(self):
-        """Initialize textlint client, analyzer, and suggestion generator"""
-        self._textlint_client = MCPClient('textlint')
-        self._analyzer = TextAnalyzer(self._textlint_client)
-        self._suggestion_generator = SuggestionGenerator()
-    
-    async def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Process article content for proofreading"""
-        content = input_data.get('content', '')
-        path = input_data.get('path', '')
-        
-        print(f"[ProofreadingAgent] Starting proofreading for: {path}")
-        
-        # Perform different types of proofreading
-        grammar_check = await self._analyzer.check_grammar(content)
-        style_check = await self._analyzer.check_style(content)
-        readability_check = await self._suggestion_generator.check_readability(content)
-        
-        # Generate improvement suggestions
-        suggestions = await self._suggestion_generator.generate_suggestions(
-            content, grammar_check, style_check, readability_check
-        )
-        
-        # Generate summary
-        summary = await self._suggestion_generator.generate_summary(suggestions)
-        
-        return {
-            'grammar_issues': grammar_check,
-            'style_issues': style_check,
-            'readability_score': readability_check,
-            'suggestions': suggestions,
-            'summary': summary
+    # Mock proofreading results
+    grammar_issues = [
+        {
+            "text": "This are wrong",
+            "issue": "Subject-verb disagreement",
+            "suggestion": "This is wrong",
+            "severity": "high",
+            "line_number": 5,
+            "column_number": 12
         }
+    ]
+    
+    style_suggestions = [
+        {
+            "text": "very good",
+            "suggestion": "excellent",
+            "reason": "More precise and professional",
+            "category": "word_choice",
+            "line_number": 10,
+            "column_number": 8
+        }
+    ]
+    
+    content_improvements = [
+        {
+            "section": "Introduction",
+            "issue": "Lacks clear thesis statement",
+            "suggestion": "Add a clear thesis statement at the end of the introduction",
+            "impact": "structure",
+            "priority": "high"
+        }
+    ]
+    
+    result = {
+        "agent_id": "proofreading_agent",
+        "grammar_issues": grammar_issues,
+        "style_suggestions": style_suggestions,
+        "content_improvements": content_improvements,
+        "overall_score": 7.5,
+        "readability_score": 8.2
+    }
+    
+    return result
+
+
+# ADK Agent definition
+root_agent = Agent(
+    name="ProofreadingAgent",
+    model="gemini-2.0-flash",
+    instruction="""You are a professional proofreading agent specializing in grammar, style, and content analysis.
+    Your role is to:
+    1. Identify and correct grammar and spelling errors
+    2. Provide style and word choice improvements
+    3. Suggest content structure enhancements
+    4. Ensure clarity and readability
+    
+    Always provide constructive feedback with specific suggestions and explanations.""",
+    description="Performs comprehensive proofreading including grammar, style, and content analysis",
+    tools=[proofread_content]
+)

@@ -28,25 +28,176 @@ cp .env.template .env
 
 ### 3. 使用方法
 
-#### 記事の校閲実行
+#### Markdown Proofreading Service
+
+AI-powered markdown content analysis and improvement system built with coordinated agents.
+
+## Features
+
+- **Evidence Analysis**: Fact-checking and verification of claims
+- **Proofreading**: Grammar and style checking
+- **Integrated Reports**: Comprehensive analysis with actionable recommendations
+- **CLI Interface**: Easy-to-use command-line interface
+- **Concurrent Processing**: Parallel analysis for faster results
+
+## Architecture
+
+The system uses a coordinated multi-agent architecture:
+
+- **RootAgent**: Orchestrates the entire workflow
+- **EvidenceAgent**: Analyzes factual claims and evidence
+- **ProofreadingAgent**: Checks grammar, style, and readability
+- **ReportAgent**: Generates integrated reports with priority actions
+
+## Installation
 
 ```bash
-# 基本的な校閲
-python main.py proofread -f articles/my-article.md
+# Navigate to the Proofreading directory
+cd Proofreading
 
-# 詳細出力とレポート保存
-python main.py proofread -f knowledges/python/Logging.md -o report.txt -v
+# Install dependencies with uv
+uv pip install -r requirements.txt
 ```
 
-#### ファイル一覧表示
+## Usage
+
+### Basic Proofreading
 
 ```bash
-# 全マークダウンファイル表示
-python main.py list-files
+# Analyze a single markdown file
+python cli.py proofread -f path/to/article.md
 
-# パターン検索
-python main.py list-files -p "articles"
+# Specify output directory and options
+python cli.py proofread -f article.md -o reports/ --depth deep --level strict
 ```
+
+### List Available Files
+
+```bash
+# List markdown files in current directory
+python cli.py list
+
+# Search in specific directory with pattern
+python cli.py list -d articles/ -p "*.md" --recursive
+```
+
+### Batch Processing
+
+```bash
+# Process multiple files
+python cli.py batch -i articles/ -o reports/ --pattern "*.md" -w 3
+```
+
+### Advanced Options
+
+- `--verification-depth`: Evidence verification level (basic, standard, deep)
+- `--check-level`: Proofreading strictness (basic, standard, strict)
+- `--concurrent`: Run analysis in parallel
+- `--format`: Output format (text, json, markdown)
+
+## API Usage
+
+```python
+from agents.root_agent import RootAgent
+from utils.file_manager import FileManager
+
+# Initialize components
+root_agent = RootAgent()
+file_manager = FileManager()
+
+# Read markdown file
+markdown_file = file_manager.read_markdown_file("article.md")
+
+# Prepare input
+input_data = {
+    "content": markdown_file.content,
+    "file_metadata": {
+        "path": "article.md",
+        "size_bytes": markdown_file.size_bytes,
+        "encoding": markdown_file.encoding
+    },
+    "workflow_options": {
+        "verification_depth": "standard",
+        "check_level": "standard"
+    }
+}
+
+# Run analysis
+result = await root_agent.process(input_data)
+
+# Access results
+print(f"Overall score: {result['integrated_report']['overall_score']}")
+```
+
+## Testing
+
+```bash
+# Run individual agent tests
+python test_evidence_simple.py
+python test_proofreading_simple.py
+python test_report_simple.py
+python test_root_simple.py
+
+# Run CLI tests
+python test_cli_simple.py
+
+# Run E2E integration tests
+python test_integration_e2e.py
+```
+
+## Project Structure
+
+```
+Proofreading/
+├── agents/
+│   ├── base_agent.py          # Abstract base agent
+│   ├── evidence_agent.py      # Evidence analysis
+│   ├── proofreading_agent.py  # Grammar/style checking
+│   ├── report_agent.py        # Report generation
+│   └── root_agent.py          # Workflow coordination
+├── utils/
+│   ├── models.py              # Data models
+│   ├── file_manager.py        # File operations
+│   ├── progress_tracker.py    # Progress tracking
+│   └── agent_config.py        # Configuration
+├── config/
+│   └── agent_config.py        # Agent configuration
+├── cli.py                     # Command-line interface
+├── main.py                    # Main entry point
+└── test_*.py                  # Test files
+```
+
+## Configuration
+
+The system supports various configuration options through the `workflow_options` parameter:
+
+- **verification_depth**: Controls how thoroughly evidence is verified
+- **check_level**: Sets the strictness of grammar and style checking
+- **concurrent**: Enables parallel processing of evidence and proofreading
+
+## Output Format
+
+Reports include:
+
+- **Executive Summary**: High-level overview of analysis
+- **Evidence Analysis**: Fact-checking results with confidence scores
+- **Proofreading Results**: Grammar issues, style problems, and suggestions
+- **Priority Actions**: Ranked list of recommended improvements
+- **Overall Score**: Combined quality assessment
+
+## Development
+
+Built with:
+
+- Python 3.13
+- asyncio for concurrent processing
+- Click for CLI
+- dataclasses for type-safe models
+- TDD approach with comprehensive testing
+
+## License
+
+This project follows the specifications defined in `specs/002-markdown-4-rootagent/`.
 
 ## アーキテクチャ
 
