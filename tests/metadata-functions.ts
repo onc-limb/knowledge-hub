@@ -1,7 +1,8 @@
+// Extract reusable functions from generate-metadata.ts for testing
 import * as fs from "fs";
 import * as path from "path";
 
-interface CategoryMetadata {
+export interface CategoryMetadata {
   category: string;
   point: number;
   names?: string[];
@@ -9,13 +10,16 @@ interface CategoryMetadata {
   subSubCategories?: CategoryMetadata[];
 }
 
-interface KnowledgeMetadata {
+export interface KnowledgeMetadata {
   categories: CategoryMetadata[];
   totalFiles: number;
   lastUpdated: string;
 }
 
-function scanDirectory(dirPath: string, depth: number = 0): CategoryMetadata[] {
+export function scanDirectory(
+  dirPath: string,
+  depth: number = 0
+): CategoryMetadata[] {
   const categories: CategoryMetadata[] = [];
 
   try {
@@ -71,7 +75,7 @@ function scanDirectory(dirPath: string, depth: number = 0): CategoryMetadata[] {
   return categories;
 }
 
-function getDirectFilenames(dirPath: string): string[] {
+export function getDirectFilenames(dirPath: string): string[] {
   const filenames: string[] = [];
 
   try {
@@ -91,7 +95,7 @@ function getDirectFilenames(dirPath: string): string[] {
   return filenames;
 }
 
-function countFilesRecursively(dirPath: string): number {
+export function countFilesRecursively(dirPath: string): number {
   let count = 0;
 
   try {
@@ -113,12 +117,11 @@ function countFilesRecursively(dirPath: string): number {
   return count;
 }
 
-function generateMetadata(): void {
-  const knowledgesPath = path.join(process.cwd(), "knowledges");
-
+export function generateMetadataForPath(
+  knowledgesPath: string
+): KnowledgeMetadata {
   if (!fs.existsSync(knowledgesPath)) {
-    console.error("knowledges directory not found");
-    return;
+    throw new Error("knowledges directory not found");
   }
 
   // Check if knowledges directory has subdirectories
@@ -138,13 +141,6 @@ function generateMetadata(): void {
     categories = scanDirectory(knowledgesPath, 0);
   }
 
-  // Warning if root has files (excluding meta.json)
-  if (filesInRoot > 0) {
-    console.warn(
-      `Warning: Found ${filesInRoot} files in root directory. Consider moving them to appropriate subdirectories.`
-    );
-  }
-
   const totalFiles =
     countFilesRecursively(knowledgesPath) -
     (fs.existsSync(path.join(knowledgesPath, "meta.json")) ? 1 : 0);
@@ -155,14 +151,17 @@ function generateMetadata(): void {
     lastUpdated: new Date().toISOString(),
   };
 
-  const outputPath = path.join(knowledgesPath, "meta.json");
+  return metadata;
+}
+
+export function writeMetadataFile(
+  metadata: KnowledgeMetadata,
+  outputPath: string
+): void {
   fs.writeFileSync(outputPath, JSON.stringify(metadata, null, 2));
+}
 
-  console.log(`Metadata generated successfully at ${outputPath}`);
-  console.log(`Total files: ${totalFiles}`);
-  console.log(`Categories: ${categories.length}`);
-
-  // Display hierarchy structure
+export function displayHierarchy(categories: CategoryMetadata[]): void {
   console.log("\nHierarchy structure:");
   categories.forEach((category) => {
     const filesInfo = category.names ? ` [${category.names.join(", ")}]` : "";
@@ -198,6 +197,3 @@ function generateMetadata(): void {
     }
   });
 }
-
-// Run the script
-generateMetadata();

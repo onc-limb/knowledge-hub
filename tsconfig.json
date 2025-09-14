@@ -12,7 +12,9 @@
     "resolveJsonModule": true
   },
   "include": [
-    "scripts/**/*"
+    "scripts/**/*",
+    "src/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",
