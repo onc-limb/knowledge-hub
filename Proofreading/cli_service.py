@@ -13,7 +13,7 @@ from utils.file_manager import FileManager
 class ProofreadingService:
     """Main service for handling proofreading operations"""
     
-    async def run_proofreading(self, file_path: str, output_file: str, verbose: bool):
+    async def run_proofreading(self, file_path: str, output_dir: str, verbose: bool):
         """Main proofreading process"""
         
         try:
@@ -47,9 +47,9 @@ class ProofreadingService:
             # Display and save results
             await self._display_results(result)
             
-            if output_file:
-                await self._save_report(result, output_file, file_path)
-                click.echo(f"\n💾 レポートを保存しました: {output_file}")
+            if output_dir:
+                saved_file = await self._save_report(result, output_dir, file_path)
+                click.echo(f"\n💾 レポートを保存しました: {saved_file}")
             
             click.echo("\n✅ 校閲プロセスが完了しました！")
             
@@ -87,13 +87,33 @@ class ProofreadingService:
             for suggestion in proofreading['suggestions'][:5]:
                 click.echo(f"   • {suggestion}")
     
-    async def _save_report(self, result: dict, output_file: str, file_path: str):
+    async def _save_report(self, result: dict, output_dir: str, file_path: str):
         """Save the proofreading report to a file"""
+        
+        # Generate timestamp-based filename
+        import datetime
+        from pathlib import Path
+        
+        # Extract original filename without extension
+        original_filename = Path(file_path).stem
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        report_filename = f"{original_filename}_{timestamp}_proofreading_report.txt"
+        
+        # Use default output directory if not specified
+        if not output_dir:
+            output_dir = "reports"
+        
+        # Create output directory if it doesn't exist
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Full path to the report file
+        report_file_path = output_path / report_filename
         
         report_content = f"""校閲レポート
 ===================
 対象ファイル: {file_path}
-生成日時: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+生成日時: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 総合評価:
 {result.get('overall_summary', '評価なし')}
@@ -112,10 +132,12 @@ class ProofreadingService:
             report_content += f"{i}. {suggestion}\n"
         
         try:
-            with open(output_file, 'w', encoding='utf-8') as f:
+            with open(report_file_path, 'w', encoding='utf-8') as f:
                 f.write(report_content)
+            return str(report_file_path)
         except Exception as e:
             click.echo(f"⚠️  レポート保存に失敗しました: {str(e)}")
+            return None
     
     def list_files(self, pattern: str):
         """List available markdown files for proofreading"""

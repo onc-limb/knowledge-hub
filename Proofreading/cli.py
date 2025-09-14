@@ -11,7 +11,7 @@ from cli_service import ProofreadingService
 @click.option('--file-path', '-f', required=True, 
               help='Path to the article file to proofread (relative to repository root)')
 @click.option('--output', '-o', default=None,
-              help='Output file for the proofreading report')
+              help='Output directory for the proofreading report (default: reports/)')
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
 def proofread(file_path: str, output: str, verbose: bool):
     """
@@ -19,7 +19,7 @@ def proofread(file_path: str, output: str, verbose: bool):
     
     使用例:
     python cli.py -f articles/my-article.md
-    python cli.py -f knowledges/python/Logging.md -o report.txt
+    python cli.py -f knowledges/python/Logging.md -o reports/
     """
     
     # Check if .env file exists

@@ -5,3 +5,5 @@ Proofreading/.env
 *.pyc
 __pycache__/
 .pytest_cache/
+
+Proofreading/reports/
