@@ -25,7 +25,8 @@ class RootAgent(LlmAgent):
             actionable recommendations for improvement.
             """,
             description="Coordinator agent for proofreading workflow",
-            tools=[]
+            tools=[],
+            sub_agents=[EvidenceAgent(), ProofreadingAgent()]
         )
         
         # Initialize sub-agents after super().__init__
