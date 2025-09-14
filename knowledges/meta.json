@@ -9,12 +9,12 @@
           "point": 7,
           "names": [
             "LightningCLIとは.md",
-            "Lightningのモジュール.md",
+            "Lightningのモジュール.md",
             "MLOpsの流れ.md",
             "NVTablerとは.md",
             "NVTablerのworkflow.md",
             "再学習.md",
-            "機械学習におけるデータセット.md"
+            "機械学習におけるデータセット.md"
           ]
         }
       ]
@@ -38,14 +38,6 @@
           ]
         },
         {
-          "category": "ec2",
-          "point": 0
-        },
-        {
-          "category": "s3",
-          "point": 0
-        },
-        {
           "category": "sagemaker",
           "point": 3,
           "names": [
@@ -62,10 +54,6 @@
       "names": [
         "tailwindのimport.md"
       ]
-    },
-    {
-      "category": "go",
-      "point": 0
     },
     {
       "category": "methodology",
@@ -103,5 +91,5 @@
     }
   ],
   "totalFiles": 19,
-  "lastUpdated": "2025-09-14T04:26:23.981Z"
+  "lastUpdated": "2025-09-14T04:37:58.564Z"
 }
