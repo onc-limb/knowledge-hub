@@ -9,7 +9,9 @@
     "test:integration": "npx tsc && node dist/tests/integration/run-integration-tests.js",
     "test:unit": "npx tsc && node dist/tests/unit/run-unit-tests.js",
     "generate-metadata": "npx tsc scripts/generate-metadata.ts --outDir dist && node dist/generate-metadata.js",
-    "generate-metadata-enhanced": "npx tsc && node dist/scripts/generate-metadata-enhanced.js"
+    "generate-metadata-enhanced": "npx tsc && node dist/scripts/generate-metadata-enhanced.js",
+    "proofread": "cd Proofreading && uv run python main.py proofread -f",
+    "proofread:list": "cd Proofreading && uv run python main.py list-files"
   },
   "keywords": [],
   "author": "",
