@@ -1,8 +1,8 @@
-# Quickstart Guide: knowledges ディレクトリメタデータ生成機能
+# Quickstart Guide: knowledges ディレクトリメタデータ生成機能（拡張版）
 
 ## 概要
 
-このガイドでは、knowledges ディレクトリメタデータ生成機能の基本的な使用方法から、開発者向けの詳細な操作まで順を追って説明します。
+このガイドでは、拡張された knowledges ディレクトリメタデータ生成機能の使用方法を説明します。従来の 3 階層制限を超えた無制限階層スキャンや、マークダウンファイルフィルタリングなどの新機能を含みます。
 
 ## 前提条件
 
@@ -26,32 +26,83 @@ ls knowledges/
 
 ## 基本的な使用方法
 
-### 1. メタデータ生成（最も一般的な用途）
+### 1. 従来方式（3 階層制限）でのメタデータ生成
 
 ```bash
-# knowledgesディレクトリをスキャンしてmeta.jsonを更新
+# 既存のスクリプト（従来互換）
+npm run generate-metadata
+# または
 npx tsx scripts/generate-metadata.ts
-
-# 実行結果の確認
-cat knowledges/meta.json
 ```
 
-**期待される結果**:
-
-- `knowledges/meta.json` が更新される
-- 3 階層構造（categories, subCategories, subSubCategories）でメタデータが生成される
-- totalFiles と lastUpdated が自動更新される
-- エラーがなければ正常終了（exit code 0）
-
-### 2. 実行結果の確認
+### 2. 拡張機能を使用したメタデータ生成
 
 ```bash
-# 生成されたメタデータの内容を確認
-cat knowledges/meta.json | jq .
+# 拡張版スクリプトの基本使用
+npm run generate-metadata-enhanced
+# または
+npx tsx scripts/generate-metadata-enhanced.ts
+
+# ヘルプの確認
+npm run generate-metadata-enhanced -- --help
+```
+
+## 拡張機能の詳細
+
+### 無制限階層スキャン
+
+```bash
+# 無制限の深さでスキャン（デフォルト）
+npm run generate-metadata-enhanced
+
+# 最大深度を指定
+npm run generate-metadata-enhanced -- --max-depth 5
+
+# 従来の3階層制限を使用
+npm run generate-metadata-enhanced -- --legacy
+```
+
+### ファイルフィルタリング
+
+```bash
+# マークダウンファイルのみスキャン
+npm run generate-metadata-enhanced -- --md-only
+
+# 隠しファイル・ディレクトリも含める
+npm run generate-metadata-enhanced -- --include-hidden
+```
+
+### 出力オプション
+
+```bash
+# テキスト形式で出力
+npm run generate-metadata-enhanced -- --format text --output knowledge-structure.txt
+
+# 詳細なログ出力
+npm run generate-metadata-enhanced -- --verbose
+
+# 階層表示を抑制
+npm run generate-metadata-enhanced -- --quiet
+```
+
+### 高度な使用例
+
+```bash
+# マークダウンのみ、最大3階層、詳細ログ
+npm run generate-metadata-enhanced -- --md-only --max-depth 3 --verbose
+
+# カスタムディレクトリをスキャン
+npm run generate-metadata-enhanced -- ./docs --output docs-metadata.json
+
+# テキスト形式、静寂モード
+npm run generate-metadata-enhanced -- --format text --quiet --output report.txt
+```
 
 # 出力例:
-# 生成されたJSONの整形表示で、3階層構造を確認できる
-```
+
+# 生成された JSON の整形表示で、3 階層構造を確認できる
+
+````
 
 ### 3. 既存実装の動作確認
 
@@ -73,7 +124,7 @@ cat knowledges/meta.json | jq '.categories[0]'
 #     }
 #   ]
 # }
-```
+````
 
 ## 高度な使用方法
 
