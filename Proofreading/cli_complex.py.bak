@@ -1,0 +1,349 @@
+"""Command-line interface for the markdown proofreading service.
+
+This module provides a CLI for running the complete proofreading workflow
+using the coordinated agent system.
+"""
+
+import asyncio
+import click
+import json
+from pathlib import Path
+from datetime import datetime
+from typing import Optional
+
+from agents.root_agent import root_agent
+from utils.file_manager import FileManager
+
+
+@click.group()
+def cli():
+    """Markdown Proofreading Service - AI-powered content analysis and improvement."""
+    pass
+
+
+@cli.command()
+@click.option('--file-path', '-f', required=True, 
+              help='Path to the markdown file to proofread')
+@click.option('--output', '-o', default=None,
+              help='Output directory for the proofreading report (default: reports/)')
+@click.option('--verification-depth', '--depth', 
+              type=click.Choice(['basic', 'standard', 'deep']), 
+              default='standard',
+              help='Evidence verification depth level')
+@click.option('--check-level', '--level',
+              type=click.Choice(['basic', 'standard', 'strict']),
+              default='standard', 
+              help='Proofreading check level')
+@click.option('--concurrent', is_flag=True, 
+              help='Run evidence and proofreading analysis concurrently')
+@click.option('--quiet', '-q', is_flag=True, 
+              help='Suppress progress output')
+@click.option('--format', 'output_format',
+              type=click.Choice(['json', 'markdown', 'text']),
+              default='text',
+              help='Output format for the report')
+def proofread(file_path: str, output: Optional[str], verification_depth: str,
+              check_level: str, concurrent: bool, quiet: bool, output_format: str):
+    """Run comprehensive proofreading analysis on a markdown file.
+    
+    This command analyzes the specified markdown file for factual accuracy,
+    grammar issues, style problems, and generates improvement recommendations.
+    
+    Examples:
+        proofreading proofread -f article.md
+        proofreading proofread -f article.md --depth deep --level strict
+        proofreading proofread -f article.md --concurrent --format json
+    """
+    asyncio.run(_run_proofreading(
+        file_path, output, verification_depth, check_level, 
+        concurrent, quiet, output_format
+    ))
+
+
+@cli.command()
+@click.option('--directory', '-d', default='.',
+              help='Directory to search for markdown files')
+@click.option('--pattern', '-p', default='*.md',
+              help='File pattern to match (e.g., "*.md", "article_*.md")')
+@click.option('--recursive', '-r', is_flag=True,
+              help='Search recursively in subdirectories')
+def list(directory: str, pattern: str, recursive: bool):
+    """List available markdown files for proofreading.
+    
+    Examples:
+        proofreading list
+        proofreading list -d articles/ -r
+        proofreading list -p "*.md" --recursive
+    """
+    try:
+        file_manager = FileManager()
+        files = file_manager.find_markdown_files()
+        
+        # Filter files based on directory and pattern
+        filtered_files = []
+        for file_path in files:
+            path_obj = Path(file_path)
+            
+            # Check if file is in the specified directory
+            if directory != '.' and not str(path_obj).startswith(directory):
+                continue
+            
+            # Check if file matches pattern
+            if pattern != '*.md' and not path_obj.match(pattern):
+                continue
+            
+            # Check recursive flag
+            if not recursive and directory != '.' and '/' in str(path_obj.relative_to(directory)):
+                continue
+                
+            filtered_files.append(file_path)
+        
+        if not filtered_files:
+            click.echo(f"No markdown files found in {directory}")
+            return
+        
+        click.echo(f"Found {len(filtered_files)} markdown file(s):")
+        for i, file_path in enumerate(sorted(filtered_files), 1):
+            path_obj = Path(file_path)
+            size_kb = path_obj.stat().st_size / 1024
+            click.echo(f"  {i:2d}. {file_path} ({size_kb:.1f} KB)")
+            
+    except Exception as e:
+        click.echo(f"Error listing files: {e}", err=True)
+
+
+@cli.command()
+@click.option('--input-dir', '-i', required=True,
+              help='Input directory containing markdown files')
+@click.option('--output-dir', '-o', required=True,
+              help='Output directory for batch reports')
+@click.option('--pattern', '-p', default='*.md',
+              help='File pattern to process')
+@click.option('--max-workers', '-w', default=3,
+              help='Maximum number of concurrent workers')
+@click.option('--verification-depth', '--depth',
+              type=click.Choice(['basic', 'standard', 'deep']),
+              default='standard',
+              help='Evidence verification depth level')
+@click.option('--check-level', '--level',
+              type=click.Choice(['basic', 'standard', 'strict']),
+              default='standard',
+              help='Proofreading check level')
+def batch(input_dir: str, output_dir: str, pattern: str, max_workers: int,
+          verification_depth: str, check_level: str):
+    """Run batch proofreading on multiple markdown files.
+    
+    Examples:
+        proofreading batch -i articles/ -o reports/
+        proofreading batch -i docs/ -o analysis/ --pattern "*.md" -w 5
+    """
+    asyncio.run(_run_batch_proofreading(
+        input_dir, output_dir, pattern, max_workers,
+        verification_depth, check_level
+    ))
+
+
+async def _run_proofreading(file_path: str, output_dir: Optional[str],
+                          verification_depth: str, check_level: str,
+                          concurrent: bool, quiet: bool, output_format: str):
+    """Run proofreading analysis on a single file."""
+    try:
+        # Initialize components
+        # root_agent is already imported as the ADK agent instance
+        file_manager = FileManager()
+        
+        # Validate file exists
+        if not Path(file_path).exists():
+            click.echo(f"Error: File not found: {file_path}", err=True)
+            return
+        
+        if not quiet:
+            click.echo(f"Starting proofreading analysis: {file_path}")
+            click.echo(f"Verification depth: {verification_depth}")
+            click.echo(f"Check level: {check_level}")
+            click.echo(f"Concurrent mode: {'enabled' if concurrent else 'disabled'}")
+        
+        # Read file content
+        markdown_file = file_manager.read_markdown_file(file_path)
+        content = markdown_file.content
+        
+        file_info = {
+            "size_bytes": markdown_file.size_bytes,
+            "encoding": markdown_file.encoding
+        }
+        
+        # Prepare input data
+        input_data = {
+            "content": content,
+            "file_metadata": {
+                "path": file_path,
+                **file_info
+            },
+            "workflow_options": {
+                "verification_depth": verification_depth,
+                "check_level": check_level
+            }
+        }
+        
+        # Run analysis
+        if concurrent:
+            result = await root_agent.run_concurrent_analysis(input_data)
+        else:
+            result = await root_agent.process(input_data)
+        
+        # Generate output
+        if output_dir:
+            output_path = Path(output_dir)
+        else:
+            output_path = Path("reports")
+        
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Save report
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_stem = Path(file_path).stem
+        
+        if output_format == 'json':
+            report_file = output_path / f"{file_stem}_{timestamp}_report.json"
+            with open(report_file, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=2, ensure_ascii=False)
+        else:
+            report_file = output_path / f"{file_stem}_{timestamp}_report.txt"
+            with open(report_file, 'w', encoding='utf-8') as f:
+                f.write(_format_report(result, output_format))
+        
+        if not quiet:
+            click.echo(f"✓ Analysis completed successfully")
+            click.echo(f"✓ Report saved to: {report_file}")
+            
+            # Show summary
+            if result.get('status') == 'completed':
+                if 'integrated_report' in result:
+                    report = result['integrated_report']
+                    click.echo(f"✓ Overall score: {report.get('overall_score', 0):.2f}")
+                    click.echo(f"✓ Priority actions: {len(report.get('priority_actions', []))}")
+            
+    except Exception as e:
+        click.echo(f"Error during proofreading: {e}", err=True)
+        if not quiet:
+            import traceback
+            traceback.print_exc()
+
+
+async def _run_batch_proofreading(input_dir: str, output_dir: str, pattern: str,
+                                max_workers: int, verification_depth: str, check_level: str):
+    """Run batch proofreading on multiple files."""
+    try:
+        file_manager = FileManager()
+        
+        # Find files to process
+        file_manager = FileManager()
+        all_files = file_manager.find_markdown_files()
+        
+        # Filter files based on input directory and pattern
+        files = []
+        for file_path in all_files:
+            path_obj = Path(file_path)
+            
+            # Check if file is in the input directory
+            if not str(path_obj).startswith(input_dir):
+                continue
+            
+            # Check if file matches pattern
+            if not path_obj.match(pattern):
+                continue
+                
+            files.append(file_path)
+        
+        if not files:
+            click.echo(f"No files found matching pattern '{pattern}' in {input_dir}")
+            return
+        
+        click.echo(f"Found {len(files)} files to process")
+        
+        # Create output directory
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        
+        # Process files with limited concurrency
+        semaphore = asyncio.Semaphore(max_workers)
+        
+        async def process_file(file_path: str):
+            async with semaphore:
+                await _run_proofreading(
+                    file_path, output_dir, verification_depth, check_level,
+                    False, True, 'text'  # concurrent=False, quiet=True, format=text
+                )
+                click.echo(f"✓ Processed: {file_path}")
+        
+        # Run batch processing
+        tasks = [process_file(file_path) for file_path in files]
+        await asyncio.gather(*tasks, return_exceptions=True)
+        
+        click.echo(f"✓ Batch processing completed. Reports saved to: {output_dir}")
+        
+    except Exception as e:
+        click.echo(f"Error during batch processing: {e}", err=True)
+
+
+def _format_report(result: dict, format_type: str) -> str:
+    """Format the analysis result for output."""
+    if format_type == 'json':
+        return json.dumps(result, indent=2, ensure_ascii=False)
+    
+    # Text/Markdown format
+    lines = []
+    lines.append("# Markdown Proofreading Report")
+    lines.append("")
+    
+    # Basic info
+    lines.append(f"**File:** {result.get('file_path', 'Unknown')}")
+    lines.append(f"**Status:** {result.get('status', 'Unknown')}")
+    lines.append(f"**Processing Time:** {result.get('processing_time', 0):.3f}s")
+    lines.append("")
+    
+    # Evidence analysis
+    if 'evidence_analysis' in result and result['evidence_analysis']:
+        evidence = result['evidence_analysis']
+        lines.append("## Evidence Analysis")
+        lines.append(f"- **Confidence Score:** {evidence.get('confidence_score', 0):.2f}")
+        lines.append(f"- **Verified Facts:** {len(evidence.get('verified_facts', []))}")
+        lines.append(f"- **Questionable Claims:** {len(evidence.get('questionable_claims', []))}")
+        lines.append(f"- **Missing Evidence:** {len(evidence.get('missing_evidence', []))}")
+        lines.append("")
+    
+    # Proofreading analysis
+    if 'proofreading_analysis' in result and result['proofreading_analysis']:
+        proofreading = result['proofreading_analysis']
+        lines.append("## Proofreading Analysis")
+        lines.append(f"- **Readability Score:** {proofreading.get('readability_score', 0):.2f}")
+        lines.append(f"- **Grammar Issues:** {len(proofreading.get('grammar_issues', []))}")
+        lines.append(f"- **Style Issues:** {len(proofreading.get('style_issues', []))}")
+        lines.append(f"- **Suggestions:** {len(proofreading.get('suggestions', []))}")
+        lines.append("")
+    
+    # Integrated report
+    if 'integrated_report' in result and result['integrated_report']:
+        report = result['integrated_report']
+        lines.append("## Integrated Report")
+        lines.append(f"- **Overall Score:** {report.get('overall_score', 0):.2f}")
+        lines.append("")
+        
+        if 'executive_summary' in report:
+            lines.append("### Executive Summary")
+            lines.append(report['executive_summary'])
+            lines.append("")
+        
+        if 'priority_actions' in report and report['priority_actions']:
+            lines.append("### Priority Actions")
+            for i, action in enumerate(report['priority_actions'], 1):
+                lines.append(f"{i}. **{action.get('action', 'Unknown action')}**")
+                lines.append(f"   - Category: {action.get('category', 'Unknown')}")
+                lines.append(f"   - Priority: {action.get('priority', 'Unknown')}")
+                lines.append(f"   - Effort: {action.get('effort', 'Unknown')}")
+                lines.append("")
+    
+    return "\n".join(lines)
+
+
+if __name__ == '__main__':
+    cli()

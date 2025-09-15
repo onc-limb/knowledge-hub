@@ -5,7 +5,7 @@ Proofreading Agent System
 
 使用方法:
     python main.py proofread -f path/to/article.md
-    python main.py list-files -p articles
+    python main.py list-files -p "*.md"
     
 環境設定:
     1. uv sync
@@ -27,6 +27,16 @@ if __name__ == '__main__':
     # Check Python version
     if sys.version_info < (3, 8):
         print("❌ Python 3.8以上が必要です")
+        sys.exit(1)
+    
+    # Run CLI
+    try:
+        cli()
+    except KeyboardInterrupt:
+        print("\n❌ ユーザーによって中断されました")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ 予期しないエラー: {str(e)}")
         sys.exit(1)
     
     # Check if running from correct directory

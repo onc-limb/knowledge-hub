@@ -6,6 +6,7 @@ This module handles file operations including reading, writing, and validation.
 import os
 import json
 import yaml
+import markdown
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
@@ -177,10 +178,12 @@ class FileManager:
             content.append(f"- **可読性スコア**: {pr.readability_score:.1%}")
             content.append(f"- **処理時間**: {pr.processing_time:.1f}秒")
             
-            if pr.grammar_fixes:
+            if pr.grammar_issues:
                 content.append("### 文法修正")
-                for fix in pr.grammar_fixes:
-                    content.append(f"- 行{fix.line_number}: {fix.original} → {fix.corrected}")
+                for issue in pr.grammar_issues:
+                    content.append(f"- 行{issue.line}: {issue.message}")
+                    if hasattr(issue, 'rule'):
+                        content.append(f"  ルール: {issue.rule}")
             
             content.append("")
         
@@ -244,13 +247,14 @@ class FileManager:
                 "agent_id": pr.agent_id,
                 "readability_score": pr.readability_score,
                 "processing_time": pr.processing_time,
-                "grammar_fixes": [
+                "grammar_issues": [
                     {
-                        "line_number": f.line_number,
-                        "original": f.original,
-                        "corrected": f.corrected,
-                        "rule": f.rule
-                    } for f in pr.grammar_fixes
+                        "line": issue.line,
+                        "column": issue.column,
+                        "message": issue.message,
+                        "severity": issue.severity,
+                        "rule": issue.rule
+                    } for issue in pr.grammar_issues
                 ],
                 "error_message": pr.error_message
             }
@@ -346,6 +350,10 @@ class FileManager:
         
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(example_config)
+
+
+class SimpleFileManager:
+    """Simple file manager for basic file operations."""
     
     def __init__(self, repository_root: str | None = None):
         if repository_root is None:
