@@ -71,7 +71,7 @@ async def proofread_content(content: str, style_guide: Optional[str] = None) -> 
 
 
 # ADK Agent definition
-root_agent = Agent(
+proofreading_agent = Agent(
     name="ProofreadingAgent",
     model="gemini-2.0-flash",
     instruction="""You are a professional proofreading agent specializing in grammar, style, and content analysis.

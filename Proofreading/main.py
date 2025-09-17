@@ -29,6 +29,11 @@ if __name__ == '__main__':
         print("❌ Python 3.8以上が必要です")
         sys.exit(1)
     
+    # Check if running from correct directory
+    if not (current_dir / 'pyproject.toml').exists():
+        print("❌ Proofreadingディレクトリから実行してください")
+        sys.exit(1)
+    
     # Run CLI
     try:
         cli()
@@ -38,10 +43,3 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"❌ 予期しないエラー: {str(e)}")
         sys.exit(1)
-    
-    # Check if running from correct directory
-    if not (current_dir / 'pyproject.toml').exists():
-        print("❌ Proofreadingディレクトリから実行してください")
-        sys.exit(1)
-    
-    cli()

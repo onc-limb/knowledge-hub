@@ -59,7 +59,7 @@ async def generate_report(evidence_data: Dict[str, Any], proofreading_data: Dict
 
 
 # ADK Agent definition
-root_agent = Agent(
+report_agent = Agent(
     name="ReportAgent",
     model="gemini-2.0-flash",
     instruction="""You are a report generation agent specializing in consolidating analysis results.

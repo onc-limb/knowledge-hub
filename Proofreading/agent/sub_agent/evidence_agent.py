@@ -63,7 +63,7 @@ async def analyze_evidence(content: str, sources: Optional[List[str]] = None) ->
 
 
 # ADK Agent definition
-root_agent = Agent(
+evidence_agent = Agent(
     name="EvidenceAgent",
     model="gemini-2.0-flash",
     instruction="""You are an evidence analysis agent responsible for fact-checking and verification.

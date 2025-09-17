@@ -1280,7 +1280,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=24.0.0" },
     { name = "chardet", specifier = ">=5.2.0" },
     { name = "click", specifier = ">=8.1.8" },
-    { name = "google-adk", specifier = "==1.14.0" },
+    { name = "google-adk", extras = ["cli"], specifier = "==1.14.0" },
     { name = "google-ai-generativelanguage", specifier = "==0.6.10" },
     { name = "google-generativeai", specifier = "==0.8.3" },
     { name = "httpx", specifier = ">=0.28.1" },
