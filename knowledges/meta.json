@@ -1,6 +1,54 @@
 {
   "categories": [
     {
+      "category": "AI",
+      "point": 7,
+      "subCategories": [
+        {
+          "category": "機械学習",
+          "point": 7,
+          "names": [
+            "LightningCLIとは.md",
+            "Lightningのモジュール.md",
+            "MLOpsの流れ.md",
+            "NVTablerとは.md",
+            "NVTablerのworkflow.md",
+            "再学習.md",
+            "機械学習におけるデータセット.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "AWS",
+      "point": 4,
+      "subCategories": [
+        {
+          "category": "AmazonQ",
+          "point": 1,
+          "names": [
+            "Amazon Q DeveloperのSlack通知.md"
+          ]
+        },
+        {
+          "category": "sagemaker",
+          "point": 3,
+          "names": [
+            "ProcessingJobとTrainingJobの違い.md",
+            "SageMaker DataWrangler.md",
+            "SageMakerローカルモード.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Architecture",
+      "point": 1,
+      "names": [
+        "アーキテクチャ特性.md"
+      ]
+    },
+    {
       "category": "ai",
       "point": 7,
       "subCategories": [
@@ -90,6 +138,6 @@
       ]
     }
   ],
-  "totalFiles": 19,
-  "lastUpdated": "2025-09-14T04:37:58.564Z"
+  "totalFiles": 31,
+  "lastUpdated": "2025-09-17T11:38:15.577Z"
 }
