@@ -8,6 +8,15 @@ Python packages manager: uv
 
 - [uv GitHub](https://github.com/astral-sh/uv)
 
+## 開発コマンド
+
+```bash
+# 依存関係インストール
+uv add
+# pythonスクリプトの実行
+uv run python
+```
+
 ## 現在の開発コンテキスト
 
 ### アクティブな機能開発
