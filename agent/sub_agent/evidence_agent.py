@@ -5,7 +5,7 @@ and checks them against available sources.
 """
 
 from google.adk.agents import LlmAgent
-from agent.config.models import GEMINI_2_0_FLASH
+from agent.utils.models import GEMINI_2_0_FLASH
 
 evidence_agent = LlmAgent(
     name="evidence_agent",

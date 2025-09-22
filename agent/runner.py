@@ -16,6 +16,10 @@ runner = Runner(
 
 async def stream_agent_events(query: str, user_id: str, session_id: str):
     """Simulate streaming agent events based on the query, user_id, and session_id."""
+    # セッションIDが提供されていることを確認
+    if not session_id:
+        raise ValueError("session_id cannot be None or empty")
+    
     session = await SESSION_SERVICE.get_session(app_name=APP_NAME, user_id=user_id, session_id=session_id)
     if not session:
         await SESSION_SERVICE.create_session(app_name=APP_NAME, user_id=user_id, session_id=session_id)

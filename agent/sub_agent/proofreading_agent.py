@@ -4,7 +4,7 @@ This agent proofreads and enhances the clarity of the evidence identified by the
 """
 
 from google.adk.agents import LlmAgent
-from agent.config.models import GEMINI_2_0_FLASH
+from agent.utils.models import GEMINI_2_0_FLASH
 
 proofreading_agent = LlmAgent(
     name="proofreading_agent",
