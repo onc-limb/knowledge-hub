@@ -49,7 +49,6 @@ async def stream_agent_events(query: str, user_id: str, session_id: str):
     write_to_log(log_file_path, f"=== Agent Session Started ===")
     write_to_log(log_file_path, f"User ID: {user_id}")
     write_to_log(log_file_path, f"Session ID: {session_id}")
-    write_to_log(log_file_path, f"Query: {query}")
     write_to_log(log_file_path, f"Log File: {log_file_path}")
     write_to_log(log_file_path, "=" * 40)
     
