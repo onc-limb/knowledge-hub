@@ -1,0 +1,28 @@
+{
+  "agents": [
+    {
+      "name": "root_agent",
+      "path": "agents/root_agent.py",
+      "description": "Root agent for coordinating the proofreading workflow",
+      "model": "gemini-2.0-flash"
+    },
+    {
+      "name": "evidence_agent", 
+      "path": "agents/evidence_agent.py",
+      "description": "Agent for evidence analysis and fact checking",
+      "model": "gemini-2.0-flash"
+    },
+    {
+      "name": "proofreading_agent",
+      "path": "agents/proofreading_agent.py", 
+      "description": "Agent for grammar and style proofreading",
+      "model": "gemini-2.0-flash"
+    },
+    {
+      "name": "report_agent",
+      "path": "agents/report_agent.py",
+      "description": "Agent for generating comprehensive reports",
+      "model": "gemini-2.0-flash"
+    }
+  ]
+}
