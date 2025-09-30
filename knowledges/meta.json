@@ -70,25 +70,6 @@
       ]
     },
     {
-      "category": "ai",
-      "point": 7,
-      "subCategories": [
-        {
-          "category": "機械学習",
-          "point": 7,
-          "names": [
-            "LightningCLIとは.md",
-            "Lightningのモジュール.md",
-            "MLOpsの流れ.md",
-            "NVTablerとは.md",
-            "NVTablerのworkflow.md",
-            "再学習.md",
-            "機械学習におけるデータセット.md"
-          ]
-        }
-      ]
-    },
-    {
       "category": "architecture",
       "point": 1,
       "names": [
@@ -137,6 +118,6 @@
       ]
     }
   ],
-  "totalFiles": 34,
-  "lastUpdated": "2025-09-30T11:48:12.107Z"
+  "totalFiles": 27,
+  "lastUpdated": "2025-09-30T11:48:31.944Z"
 }
