@@ -96,28 +96,6 @@
       ]
     },
     {
-      "category": "aws",
-      "point": 4,
-      "subCategories": [
-        {
-          "category": "AmazonQ",
-          "point": 1,
-          "names": [
-            "Amazon Q DeveloperのSlack通知.md"
-          ]
-        },
-        {
-          "category": "sagemaker",
-          "point": 3,
-          "names": [
-            "ProcessingJobとTrainingJobの違い.md",
-            "SageMaker DataWrangler.md",
-            "SageMakerローカルモード.md"
-          ]
-        }
-      ]
-    },
-    {
       "category": "css",
       "point": 1,
       "names": [
@@ -159,6 +137,6 @@
       ]
     }
   ],
-  "totalFiles": 38,
-  "lastUpdated": "2025-09-22T05:13:46.424Z"
+  "totalFiles": 34,
+  "lastUpdated": "2025-09-30T11:48:12.107Z"
 }
