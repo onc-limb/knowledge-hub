@@ -1,9 +1,0 @@
-
-SageMakerでモデルの前処理や学習を行うのに、ProcessingJobやTrainingJobを使用する。
-基本的には前処理、後処理はProcessingJobを使用し、学習にはTrainingJobを使用するのが通常。
-
-しかし、学習にもProcessingJobを使用している場面がある。
-使用している学習アルゴリズムがlightGBMという軽量アルゴリズムで単一インスタンスで十分行える計算量らしい。
-TrainingJobのメリットは複数インスタンスでの並列的な学習のため、単一インスタンスで実行できるのであればProcessingJobで学習しても問題ないらしい。
-
-あとは、当初SageMaker周りでバグが多く、安定して動いているProcessingJobを使用するという選択もあったらしい。

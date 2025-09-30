@@ -1,8 +1,0 @@
-SageMakerにはローカルモードが存在する。
-https://docs.aws.amazon.com/ja_jp/sagemaker/latest/dg/studio-updated-local-get-started.html
-
-Docker Daemonを起動させた状態でsagemakerのAPIを"LocalSession"で呼び出すと、AWSアカウントではなくDocker containerに対してリクエストを送るようになるらしい。
-
-ただし、SageMaker Pipelineの実装(PythonSDK)はローカルコンテナではなく普通にAWSアカウントに対してリクエストするためパイプラインの実装はローカル実行できない（Gemini情報のため要調査）
-
-Sagemakerのローカルモードはあまり整った状態ではなく、上手く起動しないことも多い
