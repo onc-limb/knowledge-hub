@@ -2,7 +2,10 @@
   "categories": [
     {
       "category": "AI",
-      "point": 7,
+      "point": 8,
+      "names": [
+        "AGENTS.mdという共通フォーマット.md"
+      ],
       "subCategories": [
         {
           "category": "機械学習",
@@ -21,7 +24,7 @@
     },
     {
       "category": "AWS",
-      "point": 4,
+      "point": 7,
       "subCategories": [
         {
           "category": "AmazonQ",
@@ -32,9 +35,12 @@
         },
         {
           "category": "sagemaker",
-          "point": 3,
+          "point": 6,
           "names": [
             "ProcessingJobとTrainingJobの違い.md",
+            "Processorのrunメソッド.md",
+            "Processorクラスの継承関係.md",
+            "SageMaker Coreの使用所感.md",
             "SageMaker DataWrangler.md",
             "SageMakerローカルモード.md"
           ]
@@ -43,8 +49,10 @@
     },
     {
       "category": "Architecture",
-      "point": 1,
+      "point": 3,
       "names": [
+        "Single-Responsibility-Principle.md",
+        "アーキテクチャに求めるもの.md",
         "アーキテクチャ特性.md"
       ]
     },
@@ -98,9 +106,11 @@
     },
     {
       "category": "python",
-      "point": 1,
+      "point": 3,
       "names": [
-        "Logging.md"
+        "Logging.md",
+        "polarsのCategorical型.md",
+        "uvでrequirements.txtを出力する.md"
       ]
     },
     {
@@ -118,6 +128,6 @@
       ]
     }
   ],
-  "totalFiles": 27,
-  "lastUpdated": "2025-09-30T11:48:31.944Z"
+  "totalFiles": 35,
+  "lastUpdated": "2025-09-30T11:56:54.132Z"
 }
