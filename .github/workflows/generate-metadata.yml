@@ -1,0 +1,36 @@
+name: Generate Knowledges Metadata
+
+on:
+  push:
+    branches: [main]
+    paths: ["knowledges/**"]
+
+jobs:
+  generate-metadata:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate metadata
+        run: npm run generate-metadata-enhanced
+
+      - name: Commit and push metadata
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add knowledges/meta.json
+          git diff --staged --quiet || (git commit -m "Update knowledges metadata" && git push)

@@ -1,0 +1,125 @@
+{
+  "categories": [
+    {
+      "category": "AI",
+      "point": 8,
+      "names": [
+        "AGENTS.mdという共通フォーマット.md"
+      ],
+      "subCategories": [
+        {
+          "category": "機械学習",
+          "point": 7,
+          "names": [
+            "LightningCLIとは.md",
+            "Lightningのモジュール.md",
+            "MLOpsの流れ.md",
+            "NVTablerとは.md",
+            "NVTablerのworkflow.md",
+            "再学習.md",
+            "機械学習におけるデータセット.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "AWS",
+      "point": 7,
+      "subCategories": [
+        {
+          "category": "AmazonQ",
+          "point": 1,
+          "names": [
+            "Amazon Q DeveloperのSlack通知.md"
+          ]
+        },
+        {
+          "category": "sagemaker",
+          "point": 6,
+          "names": [
+            "ProcessingJobとTrainingJobの違い.md",
+            "Processorのrunメソッド.md",
+            "Processorクラスの継承関係.md",
+            "SageMaker Coreの使用所感.md",
+            "SageMaker DataWrangler.md",
+            "SageMakerローカルモード.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Architecture",
+      "point": 2,
+      "names": [
+        "Single-Responsibility-Principle.md",
+        "アーキテクチャに求めるもの.md"
+      ]
+    },
+    {
+      "category": "DDD",
+      "point": 7,
+      "names": [
+        "イベントストーミング.md"
+      ],
+      "subCategories": [
+        {
+          "category": "エヴァンス本",
+          "point": 6,
+          "names": [
+            "1 ドメインモデルを機能させる.md",
+            "1-1 知識をかみ砕く.md",
+            "1-2 コミュニケーションと言語の使い方.md",
+            "1-3 モデルと実装を結びつける.md",
+            "2 モデル駆動設計の構成要素.md",
+            "2-4 ドメインを隔離する.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "css",
+      "point": 1,
+      "names": [
+        "tailwindのimport.md"
+      ]
+    },
+    {
+      "category": "methodology",
+      "point": 1,
+      "subCategories": [
+        {
+          "category": "scrum",
+          "point": 1,
+          "names": [
+            "プロダクトバックログ.md"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "python",
+      "point": 3,
+      "names": [
+        "Logging.md",
+        "polarsのCategorical型.md",
+        "uvでrequirements.txtを出力する.md"
+      ]
+    },
+    {
+      "category": "typescript",
+      "point": 2,
+      "subCategories": [
+        {
+          "category": "express",
+          "point": 2,
+          "names": [
+            "Multer.md",
+            "express概要.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "totalFiles": 33,
+  "lastUpdated": "2025-10-15T15:44:12.407Z"
+}
