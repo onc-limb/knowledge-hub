@@ -49,11 +49,10 @@
     },
     {
       "category": "Architecture",
-      "point": 3,
+      "point": 2,
       "names": [
         "Single-Responsibility-Principle.md",
-        "アーキテクチャに求めるもの.md",
-        "アーキテクチャ特性.md"
+        "アーキテクチャに求めるもの.md"
       ]
     },
     {
@@ -121,6 +120,6 @@
       ]
     }
   ],
-  "totalFiles": 34,
-  "lastUpdated": "2025-10-04T04:48:07.325Z"
+  "totalFiles": 33,
+  "lastUpdated": "2025-10-15T15:44:12.407Z"
 }
