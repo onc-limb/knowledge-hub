@@ -93,8 +93,8 @@ jobs:
             ${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
           build-args: |
             YOUR_BUILD_ARG=your-build-arg
-          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
 ```
 :::message alert
@@ -260,8 +260,8 @@ Docker Buildxは、Docker CLIの拡張機能で、BuildKitの全機能を活用�
       ${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
     build-args: |
       YOUR_BUILD_ARG=your-build-arg
-    cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
-    cache-to: type=inline
+    cache-from: type=gha
+    cache-to: type=gha,mode=max
 ```
 
 **主要パラメータの説明**:
@@ -319,26 +319,22 @@ build-args: |
 
 **今回の設定**:
 ```yaml
-cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
-cache-to: type=inline
-```
-
-**説明**:
-- `cache-from`: 前回ビルドした`latest`タグのイメージからキャッシュを読み込む
-- `cache-to: type=inline`: キャッシュ情報をイメージ内に埋め込む方式
-
-**より高度なキャッシュ戦略**（推奨）:
-```yaml
 cache-from: type=gha
 cache-to: type=gha,mode=max
 ```
-- `type=gha`: GitHub Actionsのキャッシュストレージを使用
-- `mode=max`: 全てのビルドステージをキャッシュ（最大限の高速化）
 
-この方式のメリット：
-- GitHubのキャッシュストレージを活用できる
-- ECRへのキャッシュイメージのプッシュが不要（コスト削減）
-- より効率的なキャッシュ管理
+**説明**:
+- `cache-from: type=gha`: GitHubのキャッシュストレージからキャッシュを読み込む
+- `cache-to: type=gha mode=max`: 全てのビルドステージをキャッシュ（最大限の高速化）
+
+**簡易的なキャッシュ戦略**:
+GitHubのキャッシュストレージを使用できない場合には下記の設定も可能
+```yaml
+cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/your-repository-name:latest
+cache-to: type=inline
+```
+- `cache-from`: refで指定したレジストリからキャッシュを取得する
+- `cache-to: type=inline`: 全てのビルドステージをキャッシュ（最大限の高速化）キャッシュ情報をイメージ内に埋め込む方式
 
 **参考リンク**: [docker/build-push-action](https://github.com/docker/build-push-action)
 
