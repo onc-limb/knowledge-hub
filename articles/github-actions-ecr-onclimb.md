@@ -5,7 +5,7 @@ type: "tech"
 topics: 
     - githubactions
     - ecr
-published: false
+published: true
 ---
 
 ## はじめに
@@ -78,9 +78,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # Docker Buildxのセットアップ
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Docker imageのビルドとECRへのpush
       - name: Build and push Docker image to ECR
         uses: docker/build-push-action@v6
         with:
@@ -123,10 +125,6 @@ jobs:
 ```
 
 シンプルに最新のv5を指定するだけで、現在のリポジトリのコードを取得できます。特別なオプションは不要です。
-
-:::message
-Docker Buildxは`git context`もサポートしているため、必ずしもcheckoutは必要ありませんが、Dockerfileの存在確認や`.dockerignore`の処理を確実にするため、明示的にcheckoutすることを推奨します。
-:::
 
 **参考リンク**: [actions/checkout](https://github.com/actions/checkout)
 
