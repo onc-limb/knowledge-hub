@@ -1,0 +1,16 @@
+{
+    "prompts": [
+        {
+            "id": "proofread",
+            "description": "技術記事を添削し、レポートを生成します",
+            "mode": "ask",
+            "prompt": "以下のファイルを添削してください。AGENTS.mdの指示に従い、技術的正確性、内容の網羅性、記事構成、文章品質、Zenn記法、コミュニティ規範の観点からレビューを行い、添削結果を /reports ディレクトリにMarkdown形式で保存してください。\n\nレポートファイル名は `report_<元のファイル名>_<日付>.md` の形式で作成してください。\n\n添削対象ファイル: ${input:filePath}"
+        }
+    ],
+    "variables": [
+        {
+            "id": "filePath",
+            "description": "添削対象のファイルパス（例: articles/terraform-deploy_onclimb.md）"
+        }
+    ]
+}

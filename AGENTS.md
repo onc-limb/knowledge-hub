@@ -1,7 +1,3 @@
----
-applyTo: "articles/**/*"
----
-
 # Zenn技術記事添削Agent指示書
 
 ## Agent の役割
