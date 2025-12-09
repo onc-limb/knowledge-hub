@@ -1,80 +1,88 @@
 # knowledge-hub
 
-onc-limb のナレッジベースリポジトリ
+[![Zenn](https://img.shields.io/badge/Zenn-Tech%20Articles-3EA8FF?logo=zenn&logoColor=white)](https://zenn.dev/)
+[![Website](https://img.shields.io/badge/Website-onc--limb.com-blue)](https://www.onc-limb.com/)
+
+> Zenn 技術記事公開・ナレッジベースリポジトリ
 
 ## 概要
 
-自分の技術知識、経験をナレッジや記事として蓄え、公開するサービス
-markdown 形式で記載したドキュメントの保管を主としている。
+[Zenn](https://zenn.dev/) に技術記事を公開するためのリポジトリです。
+また、自分の技術知識や経験をナレッジとして蓄積し、個人サイトでも公開しています。
 
-機能として、下記の二つを持っている
+### 主な機能
 
-- ナレッジが更新された時、ナレッジファイルの数やタイトルをスキャンしてメタデータファイルを更新する。（**拡張版で無制限階層対応済み**）
-- 記述したドキュメントに対して、エビデンスや文章構成などを添削、指摘するエージェント機能。
+| 機能                 | 説明                                           |
+| -------------------- | ---------------------------------------------- |
+| 📝 **記事公開**       | Zenn および個人サイトへの技術記事公開          |
+| 📚 **ナレッジ管理**   | 技術メモ・記録の蓄積と公開                     |
+| 🔍 **メタデータ生成** | ナレッジファイルのスキャンとメタデータ自動生成 |
+| ✏️ **記事添削**       | AI エージェントによる技術記事の添削・レビュー  |
 
-## 仕様
+---
+
+## ディレクトリ構成
+
+```
+knowledge-hub/
+├── articles/       # Zenn・ホームページ公開用の技術記事
+├── books/          # Zenn書籍（未使用）
+├── knowledges/     # 技術ナレッジ・メモ
+├── reports/        # 添削レポート出力先
+└── template/       # 記事テンプレート
+```
+
+---
+
+## 記事公開の仕組み
 
 ### /articles
 
-zenn(https://zenn.dev/)とホームページ(https://www.onc-limb.com/)に記事を公開するためのディレクトリ
+Zenn と個人サイトに記事を公開するためのディレクトリ
 
-- .md ファイルの published プロパティが true の場合、zenn とホームページに公開する。
-- .md ファイルの published プロパティが false の場合、ホームページにのみ公開する。
+| `published` | Zenn     | ホームページ |
+| ----------- | -------- | ------------ |
+| `true`      | ✅ 公開   | ✅ 公開       |
+| `false`     | ❌ 非公開 | ✅ 公開       |
 
-### /book
+### /books
 
-zenn に書籍を公開するためのディレクトリ
-
-- 現在は未使用
+Zenn に書籍を公開するためのディレクトリ（現在は未使用）
 
 ### /knowledges
 
 技術分野のメモや記録を残しておくためのディレクトリ
 
-- ホームページに公開する。
+- 個人サイトに公開される
 
-### /scripts
+---
 
-/knowledges 配下にある.md ファイルをスキャンして、メタデータを生成するスクリプト
+## 添削機能
 
-#### メタデータ生成機能
+### スラッシュコマンドで記事を添削
 
-- **従来版**: `npm run generate-metadata` - 3 階層制限、全ファイル対象
-- **拡張版**: `npm run generate-metadata-enhanced` - 無制限階層、カスタムフィルタ、CLI オプション
+VS Code のチャットで以下のコマンドを使用して、技術記事の添削を実行できます。
 
-#### 主な新機能（拡張版）
-
-- 🚀 **無制限階層スキャン**: 3 階層を超える深いディレクトリ構造に対応
-- 📝 **マークダウンフィルタ**: `--md-only`でマークダウンファイルのみ対象
-- ⚙️ **カスタマイズ可能**: `--max-depth`、`--format`、`--verbose`等のオプション
-- 🔄 **完全な下位互換性**: 従来の動作を`--legacy`モードで維持
-- 📊 **複数出力形式**: JSON（従来）とテキスト形式をサポート
+```
+/proofread <ファイル名>
+```
 
 #### 使用例
 
-```bash
-# 基本使用（無制限階層）
-npm run generate-metadata-enhanced
-
-# マークダウンのみ、最大3階層
-npm run generate-metadata-enhanced -- --md-only --max-depth 3
-
-# テキスト形式で出力
-npm run generate-metadata-enhanced -- --format text --output structure.txt
-
-# ヘルプ確認
-npm run generate-metadata-enhanced -- --help
+```
+/proofread articles/terraform-deploy_onclimb.md
 ```
 
-### /Proofreading
+#### 添削観点
 
-記事やメモの内容を添削するエージェントサービス
+- 🔴 **技術的正確性**: コードの動作確認、用語・概念の正確性
+- 🟡 **内容の網羅性**: 再現性、前提条件、エラーハンドリング
+- 🟡 **記事構成**: タイトル、導入、見出し、まとめ
+- 🟡 **文章品質**: 可読性、表現、文体
+- 🟡 **Zenn記法**: コードブロック、メタ情報
+- 🔴 **コミュニティ規範**: 引用、クレジット
 
-### /tests
+#### レポート出力
 
-メタデータ生成機能のテストスイート
+添削結果は `/reports` ディレクトリに Markdown 形式で出力されます。
 
-- Contract tests: 既存機能の動作確認
-- Integration tests: 階層処理とファイルスキャンの統合テスト
-- Enhanced tests: 新機能のテスト
-- Performance tests: パフォーマンス比較
