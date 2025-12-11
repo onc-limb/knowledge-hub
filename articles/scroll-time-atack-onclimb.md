@@ -11,10 +11,7 @@ published: false
 
 つい考え事をする時、**無意味に画面をスクロールしていませんか？**
 
-X のタイムラインを見るでもなくただボーッとスクロール。  
-Slack のチャンネルをなんとなくスクロール。  
-Notion のドキュメントを読むでもなくスクロール。
-
+XやSlackを見るでもなく、ただボーッとスクロール。  
 そんな「無意識のスクロール癖」を持つあなた（と筆者）のために、**スクロールそのものをゲームにしてしまいました。**
 
 ## 作ったもの
@@ -23,10 +20,10 @@ Notion のドキュメントを読むでもなくスクロール。
 ルールは簡単。**ただ 300m スクロールするだけ。**  
 それだけです。本当にそれだけです。
 
-![](/images/scroll-app/scroll-app-03.gif)
+![スクロールタイムアタックのプレイ画面。](/images/scroll-app/scroll-app-03.gif)
 
 300m スクロールしたあなたには、達成時間と特別なメッセージが贈られます。
-![](/images/scroll-app/scroll-app-01.png)
+![300m達成時の画面。](/images/scroll-app/scroll-app-01.png)
 
 
 @[card](https://allin-on-stupid.pages.dev/scroll-trial)  
@@ -76,7 +73,7 @@ Notion のドキュメントを読むでもなくスクロール。
 - キーボードの矢印キーでスクロールされる
 
 これらは「ゲーム」として望ましくない操作方法でした。
-![](/images/scroll-app/scroll-app-02.png)
+![⌘+↓で一瞬でゴールに到達してしまう問題の画面](/images/scroll-app/scroll-app-02.png)
 一瞬で終わってしまう
 
 最初は素直に `scroll` イベントを使っていました。
@@ -87,6 +84,34 @@ Notion のドキュメントを読むでもなくスクロール。
 **実際に使ってもらって初めて気づく仕様の穴。フロントエンド開発の難しさを痛感しました。**
 
 ```typescript
+// 状態管理
+const [scrollDistanceMeters, setScrollDistanceMeters] = createSignal(0);
+let accumulatedScrollPixels = 0;
+
+// ディスプレイの物理的なサイズを推定（96 DPI を基準とし、devicePixelRatioを考慮）
+const pixelToMeter = () => {
+  const dpi = 96 * window.devicePixelRatio; // 標準DPI × デバイスピクセル比
+  const pixelsPerInch = dpi;
+  const pixelsPerMeter = pixelsPerInch * 39.3701; // 1メートル = 39.3701インチ
+  return 1 / pixelsPerMeter;
+};
+
+// イベントリスナーの登録
+  onMount(() => {
+    // wheelイベント（マウス/トラックパッドのスクロールのみ）を監視
+    // スクロールバーのドラッグはこのイベントでは発火しないので除外される
+    window.addEventListener("wheel", handleWheel, { passive: false });
+
+    // タッチスクロール対応
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+    // キーボードによるスクロールを防止
+    window.addEventListener("keydown", preventKeyboardScroll);
+    
+    // 他の処理は省略
+  });
+
 const handleWheel = (e: WheelEvent) => {
   e.preventDefault();
 
@@ -116,15 +141,6 @@ const handleWheel = (e: WheelEvent) => {
 の 2 レイヤー構成です。パーティクルは `ShaderMaterial` を使い、頂点シェーダ内で「時間」「スクロール量」「スクロール速度」に応じて位置を揺らしています。
 
 スクロール入力は `updateByScroll` で「距離」と「速度」に変換し、`tick` でなめらかに補間してから、シェーダやリング、カメラの揺れに一括で反映しています。
-
-```typescript
-updateByScroll(scrollMeters: number) {
-  const delta = scrollMeters * 0.15;
-  this.targetScrollY = delta;
-  const rawVelocity = (delta - this.scrollY) * 8;
-  this.scrollVelocity = Math.max(-2, Math.min(2, rawVelocity));
-}
-```
 
 「速くスクロールすると背景が激しく動き、止めると徐々に静まる」という挙動になっていて、**スクロールそのものにだけ反応する 3D 背景**になっています。
 
