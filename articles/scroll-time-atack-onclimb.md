@@ -5,7 +5,8 @@ type: idea
 topics:
   - 個人開発
   - 趣味
-published: false
+  - クソアプリ
+published: true
 ---
 ## はじめに
 
