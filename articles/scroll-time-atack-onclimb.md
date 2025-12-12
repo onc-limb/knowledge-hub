@@ -11,7 +11,7 @@ published: true
 ## はじめに
 
 :::message
-この記事は [クソアプリ Advent Calendar 2025](https://qiita.com/advent-calendar/2025/kuso-app) の12日目の記事です。
+この記事は [クソアプリ Advent Calendar 2025](https://qiita.com/advent-calendar/2025/kuso-app) の13日目の記事です。
 :::
 
 つい考え事をする時、**無意味に画面をスクロールしていませんか？**
