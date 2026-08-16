@@ -3,7 +3,7 @@ title: "Terraform 初期セットアップ — VM を 1 台立てるまで"
 emoji: "🌱"
 type: "tech"
 topics: ["terraform", "aws", "googlecloud", "iac"]
-published: false
+published: true
 ---
 
 他の人が作った Terraform 環境で plan / apply を打ったことはある。tf ファイルを直してリソースを増やしたこともある。でも、ゼロから `terraform init` が通るところまで自分で組んだことはない——そんな状態の方は意外と多いのではないでしょうか？

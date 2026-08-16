@@ -3,7 +3,8 @@ title: "TypeScript が JavaScript になるまで"
 emoji: "🔍"
 type: "tech"
 topics: ["typescript", "nodejs", "compiler", "tsc"]
-published: false
+published: true
+published_at: 2026-08-21 09:30
 ---
 
 TypeScript で記載したプログラム（`.ts`）は、`.js` に変換されてから実行されます。毎日この変換のお世話になっているのに、中で何が起きているかは見たことがない — そんな方が多いのではないでしょうか？
