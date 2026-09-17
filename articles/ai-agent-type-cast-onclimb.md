@@ -3,7 +3,7 @@ title: "AI Agent は型を平然ともみ消す"
 emoji: "🫥"
 type: "idea"
 topics: ["typescript", "ai", "eslint"]
-published: false
+published: true
 ---
 
 すべてを AI Agent に実装させたことはあるだろうか。
