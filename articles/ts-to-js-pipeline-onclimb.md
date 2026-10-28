@@ -29,6 +29,10 @@ TypeScript で記載したプログラム（`.ts`）は、`.js` に変換され�
 - **Checker** — シンボル表を突き合わせて型を計算・検査する。シンボルと型の解決で初めてファイルを跨ぐ。検査の結果はエラー報告（診断）として tsc の終了コードになる
 - **Emitter** — AST から型を消し、構文を変換して JS・`.d.ts`・sourcemap を書き出す
 
+:::message alert
+**2026-10-28 訂正**: TypeScript 6.0 以降、@types は `types` に指定したものだけが取り込まれます（既定は空）。上の「`node_modules/@types` の自動取り込み」は 5.x までの挙動でした。詳しくは段階 1 末尾の訂正を参照してください。
+:::
+
 ```mermaid
 flowchart LR
     tsconfig["tsconfig.json"] --> program["Program 構築<br/>（モジュール解決）"]
@@ -111,6 +115,19 @@ total: 201 files
 ```
 
 自分が書いたのは `index.ts` の 1 ファイルなのに、Program は 201 ファイルです。ただし内訳を見ると、import が連れてきた @types/express 系は 9 ファイルで、残りの大半は `target: es2022` から決まる標準ライブラリの型定義（lib.\*.d.ts 群）と、`node_modules/@types` に置いてあるだけで自動で取り込まれる @types/node（とその依存 undici-types）でした。import で辿られた分より、自動取り込みの方が量としては支配的です。エディタで小さなファイルを開いただけなのに裏で大量の型定義が読まれている、という体感の正体がこの一覧です。
+
+:::message alert
+**2026-10-28 訂正**: 上の段落の「@types/node は `node_modules/@types` に置いてあるだけで自動で取り込まれる」「自動取り込みの方が量としては支配的」は誤りでした。
+
+TypeScript 6.0 以降は `compilerOptions.types` の既定が空の配列で、置いてあるだけの @types は読み込まれません（5.x までは自動で全部読み込まれていたため、筆者はその前提のまま書いていました）。`tsc --explainFiles` でファイルごとに Program に入った理由を見ると、実際はこうでした。
+
+```text
+node_modules/@types/node/index.d.ts
+   Type library referenced via 'node' from file 'node_modules/@types/express-serve-static-core/index.d.ts'
+```
+
+`@types/express` → `@types/express-serve-static-core`（`/// <reference types="node" />`）→ `@types/node` → `undici-types` と、import から芋づる式に辿られていたのです。つまり lib.\*.d.ts 以外のほとんどは import 由来で、**import で辿られた分の方が支配的**、しかもその大半は自分では import していない @types/node でした。express の import を消すと @types/node は 1 ファイルも入りません。
+:::
 
 ### 段階 2: Parser — AST を見る
 
