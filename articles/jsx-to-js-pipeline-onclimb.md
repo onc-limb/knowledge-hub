@@ -3,7 +3,7 @@ title: "JSX が JavaScript になるまで"
 emoji: "⚛️"
 type: "tech"
 topics: ["react", "jsx", "javascript", "babel", "vite"]
-published: false
+published: true
 ---
 
 React のコンポーネントには、こんなコードを書きます。
